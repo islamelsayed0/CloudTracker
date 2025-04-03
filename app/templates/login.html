@@ -1,0 +1,216 @@
+{# 
+  login.html - Landing Page Template for Muzzy Tracker
+  
+  This template extends the base.html template and provides the landing page content.
+  It includes three main sections:
+  1. Hero section with headline and feature highlights
+  2. About section with detailed feature descriptions
+  3. Login form for user authentication
+  
+  The page serves as both a marketing landing page and login portal.
+#}
+
+{% extends "base.html" %}
+
+{# Custom page title that overrides the default from base.html #}
+{% block title %}Muzzy Tracker - Smart Finance Management{% endblock %}
+
+{% block content %}
+{# 
+  Hero Section
+  - Main banner at the top of the page
+  - Contains headline, subheading, and CTA buttons
+  - Includes feature icon highlights
+  - Uses a decorative shape for visual interest
+#}
+<section class="hero-section" id="home">
+    {# Decorative background element for visual interest #}
+    <div class="decorative-shape"></div>
+    
+    <div class="container">
+        <div class="row align-items-center">
+            {# Content column with responsive sizing (7/12 cols on large screens, 10/12 on medium) #}
+            <div class="col-lg-7 col-md-8">
+                <div class="hero-content">
+                    {# Main headline #}
+                    <h1 class="display-4 fw-bold mb-3">Take Control of Your Financial Future</h1>
+                    
+                    {# Subheading with value proposition #}
+                    <p class="lead mb-4">Muzzy Tracker helps you connect your bank accounts, analyze spending patterns, and calculate Zakat with precision.</p>
+                    
+                    {# Call-to-action buttons #}
+                    <div class="d-flex gap-3 mb-5">
+                        {# Primary CTA - Learn More (scrolls to About section) #}
+                        <a href="#about" class="btn btn-primary btn-lg px-5 py-3">Learn More</a>
+                        
+                        {# Secondary CTA - Sign In (scrolls to Login form) #}
+                        <a href="#login" class="btn btn-outline-secondary btn-lg px-5 py-3">Sign In</a>
+                    </div>
+                    
+                    {# Feature Icons - Highlight key functionality with icons #}
+                    <div class="feature-icons d-flex justify-content-between mt-5">
+                        {# Bank Integration Feature #}
+                        <div class="feature-icon">
+                            <i class="bi bi-bank"></i>
+                            <span>Bank Integration</span>
+                        </div>
+                        
+                        {# Analytics Feature #}
+                        <div class="feature-icon">
+                            <i class="bi bi-graph-up"></i>
+                            <span>Smart Analytics</span>
+                        </div>
+                        
+                        {# Zakat Calculator Feature #}
+                        <div class="feature-icon">
+                            <i class="bi bi-calculator"></i>
+                            <span>Zakat Calculator</span>
+                        </div>
+                        
+                        {# Security Feature #}
+                        <div class="feature-icon">
+                            <i class="bi bi-shield-check"></i>
+                            <span>Secure & Private</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {# Stock arrow column - positioned on the right side #}
+            <div class="col-lg-5 col-md-4 d-flex justify-content-center">
+                {# Large green stock arrow showing profit #}
+                <div class="large-stock-arrow">
+                    <i class="bi bi-graph-up-arrow profit-arrow-large"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# 
+  About Section
+  - Provides detailed information about the application's features
+  - Uses cards to highlight three main features
+  - Includes a CTA button at the bottom
+#}
+<section class="about-section py-5" id="about">
+    <div class="container">
+        {# Section header with title and subtitle #}
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="section-title">About Muzzy Tracker</h2>
+                <p class="section-subtitle">A comprehensive financial management tool designed for your needs</p>
+            </div>
+        </div>
+        
+        {# Feature cards - 3-column layout on medium screens and up #}
+        <div class="row g-4">
+            {# Feature 1: Bank Account Integration #}
+            <div class="col-md-4">
+                <div class="feature-card">
+                    {# Large icon for visual emphasis #}
+                    <div class="feature-icon-large">
+                        <i class="bi bi-bank"></i>
+                    </div>
+                    <h3>Bank Account Integration</h3>
+                    <p>Connect securely to your bank accounts and investment platforms like Robinhood using Plaid's secure API. View all your finances in one place.</p>
+                </div>
+            </div>
+            
+            {# Feature 2: Smart Analytics #}
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-large">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <h3>Smart Analytics</h3>
+                    <p>Gain insights into your spending habits with intelligent categorization and visual reports. Track your financial growth over time.</p>
+                </div>
+            </div>
+            
+            {# Feature 3: Zakat Calculator #}
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-large">
+                        <i class="bi bi-calculator"></i>
+                    </div>
+                    <h3>Zakat Calculator</h3>
+                    <p>Calculate your annual Zakat obligation with precision. Our tool considers all eligible assets and applies the correct calculation methods.</p>
+                </div>
+            </div>
+        </div>
+        
+        {# Call-to-action button at the bottom of the section #}
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <a href="#login" class="btn btn-primary btn-lg">Get Started Now</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# 
+  Login Section
+  - Contains the login form for user authentication
+  - Includes email/password fields, remember me checkbox
+  - Provides forgot password and create account options
+  - Form submits to the /login route via POST method
+#}
+<section class="login-section py-5" id="login">
+    <div class="container">
+        <div class="row justify-content-center">
+            {# Center the login card and make it half-width on large screens #}
+            <div class="col-lg-6">
+                <div class="card login-card">
+                    <div class="card-body p-5">
+                        {# Login form title #}
+                        <h2 class="card-title text-center mb-4">Login to Your Account</h2>
+                        
+                        {# Login form - submits to the login route via POST #}
+                        <form method="post" action="{{ url_for('login') }}">
+                            {# Email field - uses HTML5 email validation #}
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="email" name="email" required 
+                                       aria-describedby="emailHelp" autocomplete="email">
+                            </div>
+                            
+                            {# Password field #}
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                       autocomplete="current-password">
+                            </div>
+                            
+                            {# Remember me checkbox #}
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                                <label class="form-check-label" for="remember">Remember me</label>
+                            </div>
+                            
+                            {# Submit button - full-width using d-grid #}
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                            </div>
+                            
+                            {# Forgot password link #}
+                            <div class="text-center mt-3">
+                                <a href="#" class="text-decoration-none">Forgot password?</a>
+                            </div>
+                        </form>
+                        
+                        {# Divider between login and registration option #}
+                        <hr class="my-4">
+                        
+                        {# Registration option for new users #}
+                        <div class="text-center">
+                            <p>Don't have an account?</p>
+                            <a href="{{ url_for('register') }}" class="btn btn-outline-secondary">Create Account</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

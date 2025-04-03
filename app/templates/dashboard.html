@@ -1,0 +1,894 @@
+ {# 
+  dashboard.html - Main Dashboard Template for Muzzy Tracker
+  
+  This template extends the base.html template and provides the dashboard interface.
+  It includes:
+  1. Collapsible sidebar navigation
+  2. Main content area with financial overview
+  3. Various financial tracking components
+  4. User-friendly disclaimers
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Dashboard-specific styles */
+  .sidebar {
+    min-height: calc(100vh - 56px);
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+    transition: all 0.3s;
+  }
+  
+  .sidebar-collapsed {
+    margin-left: -250px;
+  }
+  
+  .content-expanded {
+    margin-left: 0;
+  }
+  
+  /* Sidebar Brand */
+  .sidebar-brand {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  /* User Profile */
+  .user-profile {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+  }
+  
+  /* Sidebar Sections */
+  .sidebar-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .sidebar-section-header {
+    padding: 0.5rem 1rem 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Sidebar Links */
+  .sidebar-link {
+    color: var(--text-dark);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: all 0.2s;
+    border-radius: 0.25rem;
+    margin-bottom: 0.125rem;
+  }
+  
+  .sidebar-link:hover, .sidebar-link.active {
+    background-color: rgba(11, 110, 79, 0.1);
+    color: var(--primary-green);
+  }
+  
+  .sidebar-link i {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+  }
+  
+  /* Submenu Styles */
+  .has-submenu {
+    position: relative;
+  }
+  
+  .submenu-icon {
+    transition: transform 0.3s;
+    font-size: 0.8rem;
+  }
+  
+  .has-submenu[aria-expanded="true"] .submenu-icon {
+    transform: rotate(180deg);
+  }
+  
+  .submenu {
+    padding-left: 2.5rem;
+  }
+  
+  .submenu-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Sidebar Search */
+  .sidebar-search .form-control:focus {
+    box-shadow: none;
+  }
+  
+  .sidebar-search .input-group-text,
+  .sidebar-search .form-control {
+    background-color: #f8f9fa;
+  }
+  
+  .dashboard-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    height: 100%;
+  }
+  
+  .dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-header-custom {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+    color: var(--primary-green);
+  }
+  
+  .disclaimer-box {
+    background-color: #f8f9fa;
+    border-left: 4px solid var(--primary-green);
+    padding: 1rem;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .info-icon {
+    color: var(--primary-green);
+    font-size: 0.8rem;
+    cursor: help;
+  }
+  
+  .net-worth-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-green);
+  }
+  
+  .toggle-sidebar-btn {
+    cursor: pointer;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+  <div class="row g-0">
+    <!-- Sidebar -->
+    <div class="col-auto sidebar" id="sidebar">
+      <div class="d-flex flex-column p-3">
+        <!-- Logo and Branding -->
+        <div class="sidebar-brand text-center mb-4">
+          <div class="logo-container mb-2">
+            <i class="bi bi-wallet2 text-primary" style="font-size: 2rem;"></i>
+          </div>
+          <h5 class="mb-0">Muzzy Tracker</h5>
+        </div>
+        
+        <!-- User Profile Section -->
+        <div class="user-profile mb-4">
+          <div class="d-flex align-items-center">
+            <div class="avatar-container me-3">
+              <div class="avatar-circle">
+                <span class="avatar-initials">JD</span>
+              </div>
+            </div>
+            <div class="user-info">
+              <h6 class="mb-0">John Doe</h6>
+              <small class="text-muted">Premium Account</small>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Main Menu -->
+        <div class="sidebar-section mb-2">
+          <div class="sidebar-section-header">
+            <small class="text-uppercase text-muted fw-bold">Main Menu</small>
+          </div>
+          <div class="nav flex-column">
+            <a href="#" class="sidebar-link active">
+              <i class="bi bi-house"></i> Dashboard
+            </a>
+          </div>
+        </div>
+        
+        <!-- Accounts & Transactions Section -->
+        <div class="sidebar-section mb-2">
+          <div class="sidebar-section-header">
+            <small class="text-uppercase text-muted fw-bold">Accounts & Transactions</small>
+          </div>
+          <div class="nav flex-column">
+            <!-- Accounts with Submenu -->
+            <div class="sidebar-item">
+              <a href="#accountsSubmenu" class="sidebar-link has-submenu" data-bs-toggle="collapse">
+                <i class="bi bi-credit-card"></i> Accounts
+                <i class="bi bi-chevron-down ms-auto submenu-icon"></i>
+              </a>
+              <div class="collapse submenu" id="accountsSubmenu">
+                <a href="#" class="sidebar-link submenu-link">
+                  <i class="bi bi-bank"></i> Bank Accounts
+                </a>
+                <a href="#" class="sidebar-link submenu-link">
+                  <i class="bi bi-credit-card-2-front"></i> Credit Cards
+                </a>
+                <a href="#" class="sidebar-link submenu-link">
+                  <i class="bi bi-briefcase"></i> Investment Accounts
+                </a>
+              </div>
+            </div>
+            
+            <a href="#" class="sidebar-link">
+              <i class="bi bi-cash-stack"></i> Transactions
+              <span class="badge rounded-pill bg-primary ms-auto">12</span>
+            </a>
+            <a href="#" class="sidebar-link">
+              <i class="bi bi-calendar-check"></i> Subscriptions
+            </a>
+            <a href="#" class="sidebar-link">
+              <i class="bi bi-pie-chart"></i> Budgets
+            </a>
+          </div>
+        </div>
+        
+        <!-- Analysis Section -->
+        <div class="sidebar-section mb-2">
+          <div class="sidebar-section-header">
+            <small class="text-uppercase text-muted fw-bold">Analysis</small>
+          </div>
+          <div class="nav flex-column">
+            <a href="#" class="sidebar-link">
+              <i class="bi bi-graph-up"></i> Investments
+            </a>
+            <a href="#" class="sidebar-link">
+              <i class="bi bi-calculator"></i> Zakat
+            </a>
+            <a href="#" class="sidebar-link">
+              <i class="bi bi-bar-chart"></i> Reports
+            </a>
+            <a href="#" class="sidebar-link">
+              <i class="bi bi-arrow-up-right-circle"></i> Net Worth
+            </a>
+          </div>
+        </div>
+        
+        <!-- Settings Section -->
+        <div class="sidebar-section mb-2">
+          <div class="sidebar-section-header">
+            <small class="text-uppercase text-muted fw-bold">Settings</small>
+          </div>
+          <div class="nav flex-column">
+            <a href="#" class="sidebar-link">
+              <i class="bi bi-gear"></i> Settings
+            </a>
+            <a href="#" class="sidebar-link">
+              <i class="bi bi-bell"></i> Notifications
+              <span class="badge rounded-pill bg-danger ms-auto">3</span>
+            </a>
+            <a href="#" class="sidebar-link">
+              <i class="bi bi-shield-lock"></i> Privacy & Security
+            </a>
+          </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="mt-auto">
+          <div class="sidebar-search mb-3">
+            <div class="input-group">
+              <span class="input-group-text bg-light border-0">
+                <i class="bi bi-search"></i>
+              </span>
+              <input type="text" class="form-control bg-light border-0" placeholder="Search...">
+            </div>
+          </div>
+          
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('import_csv') }}" class="btn btn-outline-primary btn-sm">
+              <i class="bi bi-cloud-upload"></i> Import CSV
+            </a>
+            <button class="btn btn-outline-secondary btn-sm d-md-none" id="close-sidebar">
+              <i class="bi bi-x"></i> Close Menu
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="col" id="main-content">
+      <div class="p-4">
+        <!-- Toggle Sidebar Button -->
+        <div class="d-flex align-items-center mb-4">
+          <span class="toggle-sidebar-btn me-3" id="toggle-sidebar">
+            <i class="bi bi-list"></i>
+          </span>
+          <h2 class="mb-0">Financial Overview</h2>
+        </div>
+        
+        <!-- User-Friendly Disclaimer -->
+        <div class="disclaimer-box mb-4">
+          <div class="d-flex align-items-start">
+            <i class="bi bi-info-circle me-2 mt-1"></i>
+            <div>
+              <p class="mb-1">Muzzy Tracker helps you organize your finances but doesn't provide professional advice.</p>
+              <p class="mb-0 small">For important financial decisions, we recommend consulting with qualified professionals.</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Net Worth Chart -->
+        <div class="row g-4 mb-4">
+          <div class="col-12">
+            <div class="dashboard-card card">
+              <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <div>Net Worth Timeline</div>
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">Last 3 months</a></li>
+                    <li><a class="dropdown-item" href="#">Last 6 months</a></li>
+                    <li><a class="dropdown-item" href="#">Last year</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-body">
+                <div style="height: 250px; position: relative;">
+                  <canvas id="netWorthChart"></canvas>
+                </div>
+                <div class="small text-muted mt-2">
+                  This chart shows your net worth progression over time. The green area represents your net worth, while the dashed lines show assets and liabilities.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Financial Summary Cards -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-3">
+            <div class="dashboard-card card">
+              <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Net Worth <i class="bi bi-info-circle info-icon" title="Total assets minus total liabilities"></i></h6>
+                <div class="net-worth-value">$45,250</div>
+                <div class="small text-success">
+                  <i class="bi bi-graph-up"></i> +2.4% this month
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="dashboard-card card">
+              <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total Assets <i class="bi bi-info-circle info-icon" title="Sum of all your accounts and investments"></i></h6>
+                <div class="net-worth-value">$65,800</div>
+                <div class="small text-success">
+                  <i class="bi bi-graph-up"></i> +1.8% this month
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="dashboard-card card">
+              <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Total Debt <i class="bi bi-info-circle info-icon" title="Sum of all your liabilities"></i></h6>
+                <div class="net-worth-value">$20,550</div>
+                <div class="small text-danger">
+                  <i class="bi bi-graph-down"></i> -3.2% this month
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-3">
+            <div class="dashboard-card card">
+              <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Monthly Cashflow <i class="bi bi-info-circle info-icon" title="Income minus expenses this month"></i></h6>
+                <div class="net-worth-value">$1,250</div>
+                <div class="small text-success">
+                  <i class="bi bi-graph-up"></i> +5.7% this month
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Main Dashboard Widgets -->
+        <div class="row g-4 mb-4">
+          <!-- Spending Trends -->
+          <div class="col-md-6">
+            <div class="dashboard-card card">
+              <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <div>Spending Trends</div>
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">Last 30 days</a></li>
+                    <li><a class="dropdown-item" href="#">Last 90 days</a></li>
+                    <li><a class="dropdown-item" href="#">This year</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-body">
+                <div style="height: 250px; position: relative;">
+                  <canvas id="spendingTrendsChart"></canvas>
+                </div>
+                <div class="small text-muted mt-2">
+                  This chart shows your spending patterns over time. Data is for informational purposes only.
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Investment Portfolio -->
+          <div class="col-md-6">
+            <div class="dashboard-card card">
+              <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <div>Investment Portfolio</div>
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">View all investments</a></li>
+                    <li><a class="dropdown-item" href="#">Performance details</a></li>
+                    <li><a class="dropdown-item" href="#">Add investment</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-body">
+                <div style="height: 250px; position: relative;">
+                  <canvas id="investmentPortfolioChart"></canvas>
+                </div>
+                <div class="small text-muted mt-2">
+                  Past performance doesn't guarantee future results. This visualization is based on historical data.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row g-4 mb-4">
+          <!-- Credit Card Debt -->
+          <div class="col-md-6">
+            <div class="dashboard-card card">
+              <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <div>Credit Card Debt</div>
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">View all cards</a></li>
+                    <li><a class="dropdown-item" href="#">Payment schedule</a></li>
+                    <li><a class="dropdown-item" href="#">Add credit card</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-body">
+                <div style="height: 100px; position: relative; margin-bottom: 15px;">
+                  <canvas id="categorySpendingChart"></canvas>
+                </div>
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                      <i class="bi bi-credit-card text-primary me-2"></i>
+                      Chase Sapphire
+                    </div>
+                    <div class="fw-bold">$4,250</div>
+                  </div>
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: 65%"></div>
+                  </div>
+                  <div class="d-flex justify-content-between mt-1">
+                    <small class="text-muted">$6,500 limit</small>
+                    <small class="text-muted">65% used</small>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                      <i class="bi bi-credit-card text-success me-2"></i>
+                      Citi Double Cash
+                    </div>
+                    <div class="fw-bold">$1,850</div>
+                  </div>
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 25%"></div>
+                  </div>
+                  <div class="d-flex justify-content-between mt-1">
+                    <small class="text-muted">$7,500 limit</small>
+                    <small class="text-muted">25% used</small>
+                  </div>
+                </div>
+                
+                <div>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                      <i class="bi bi-credit-card text-danger me-2"></i>
+                      American Express
+                    </div>
+                    <div class="fw-bold">$3,200</div>
+                  </div>
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: 80%"></div>
+                  </div>
+                  <div class="d-flex justify-content-between mt-1">
+                    <small class="text-muted">$4,000 limit</small>
+                    <small class="text-muted">80% used</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Monthly Subscriptions -->
+          <div class="col-md-6">
+            <div class="dashboard-card card">
+              <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <div>Monthly Subscriptions</div>
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">View all subscriptions</a></li>
+                    <li><a class="dropdown-item" href="#">Payment calendar</a></li>
+                    <li><a class="dropdown-item" href="#">Add subscription</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Service</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Next Payment</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Netflix</td>
+                        <td><span class="badge bg-light text-dark">Entertainment</span></td>
+                        <td>$15.99</td>
+                        <td>Apr 15</td>
+                      </tr>
+                      <tr>
+                        <td>Spotify</td>
+                        <td><span class="badge bg-light text-dark">Entertainment</span></td>
+                        <td>$9.99</td>
+                        <td>Apr 22</td>
+                      </tr>
+                      <tr>
+                        <td>Adobe Creative Cloud</td>
+                        <td><span class="badge bg-light text-dark">Software</span></td>
+                        <td>$52.99</td>
+                        <td>Apr 05</td>
+                      </tr>
+                      <tr>
+                        <td>Gym Membership</td>
+                        <td><span class="badge bg-light text-dark">Health</span></td>
+                        <td>$45.00</td>
+                        <td>Apr 01</td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr class="fw-bold">
+                        <td colspan="2">Total Monthly</td>
+                        <td colspan="2">$123.97</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row g-4">
+          <!-- Recent Transactions -->
+          <div class="col-md-6">
+            <div class="dashboard-card card">
+              <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <div>Recent Transactions</div>
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">View all transactions</a></li>
+                    <li><a class="dropdown-item" href="#">Export to CSV</a></li>
+                    <li><a class="dropdown-item" href="#">Filter transactions</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                          <i class="bi bi-cart"></i>
+                        </div>
+                        <div>
+                          <div>Whole Foods Market</div>
+                          <small class="text-muted">Apr 2, 2025</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-danger">-$84.32</div>
+                  </div>
+                  
+                  <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                          <i class="bi bi-house"></i>
+                        </div>
+                        <div>
+                          <div>Rent Payment</div>
+                          <small class="text-muted">Apr 1, 2025</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-danger">-$1,850.00</div>
+                  </div>
+                  
+                  <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                          <i class="bi bi-building"></i>
+                        </div>
+                        <div>
+                          <div>Payroll Deposit</div>
+                          <small class="text-muted">Mar 31, 2025</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-success">+$3,250.00</div>
+                  </div>
+                  
+                  <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                          <i class="bi bi-cup-hot"></i>
+                        </div>
+                        <div>
+                          <div>Starbucks</div>
+                          <small class="text-muted">Mar 30, 2025</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="text-danger">-$5.45</div>
+                  </div>
+                </div>
+                
+                <div class="d-grid mt-3">
+                  <a href="#" class="btn btn-outline-primary btn-sm">View All Transactions</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Upcoming Bills & Payments -->
+          <div class="col-md-6">
+            <div class="dashboard-card card">
+              <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                <div>Upcoming Bills & Payments</div>
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">View payment calendar</a></li>
+                    <li><a class="dropdown-item" href="#">Set up reminders</a></li>
+                    <li><a class="dropdown-item" href="#">Add bill</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="d-flex align-items-center">
+                        <div class="bg-danger bg-opacity-10 text-danger rounded p-2 me-3">
+                          <i class="bi bi-lightning-charge"></i>
+                        </div>
+                        <div>
+                          <div>Electric Bill</div>
+                          <small class="text-muted">Due in 2 days</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="fw-bold me-2">$145.00</span>
+                      <span class="badge bg-danger">Due Soon</span>
+                    </div>
+                  </div>
+                  
+                  <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="d-flex align-items-center">
+                        <div class="bg-warning bg-opacity-10 text-warning rounded p-2 me-3">
+                          <i class="bi bi-credit-card"></i>
+                        </div>
+                        <div>
+                          <div>Chase Credit Card</div>
+                          <small class="text-muted">Due in 5 days</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="fw-bold me-2">$250.00</span>
+                      <span class="badge bg-warning text-dark">Upcoming</span>
+                    </div>
+                  </div>
+                  
+                  <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded p-2 me-3">
+                          <i class="bi bi-wifi"></i>
+                        </div>
+                        <div>
+                          <div>Internet Service</div>
+                          <small class="text-muted">Due in 8 days</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="fw-bold me-2">$79.99</span>
+                      <span class="badge bg-primary">Scheduled</span>
+                    </div>
+                  </div>
+                  
+                  <div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="d-flex align-items-center">
+                        <div class="bg-success bg-opacity-10 text-success rounded p-2 me-3">
+                          <i class="bi bi-phone"></i>
+                        </div>
+                        <div>
+                          <div>Mobile Phone</div>
+                          <small class="text-muted">Due in 12 days</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="fw-bold me-2">$95.00</span>
+                      <span class="badge bg-success">Auto-Pay</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="d-grid mt-3">
+                  <a href="#" class="btn btn-outline-primary btn-sm">View All Bills</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Footer with Disclaimer -->
+        <div class="mt-5 pt-4 border-top">
+          <div class="row">
+            <div class="col-md-8">
+              <p class="small text-muted mb-1">
+                Muzzy Tracker helps you organize your finances but doesn't provide professional advice.
+                <a href="{{ url_for('terms') }}" class="text-decoration-none">Terms of Use</a> | 
+                <a href="{{ url_for('privacy') }}" class="text-decoration-none">Privacy Policy</a> | 
+                <a href="{{ url_for('disclaimer') }}" class="text-decoration-none">Disclaimer</a>
+              </p>
+              <p class="small text-muted mb-0">
+                &copy; 2025 Muzzy Tracker. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include charts.js for financial visualizations -->
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle sidebar functionality
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const toggleBtn = document.getElementById('toggle-sidebar');
+    
+    toggleBtn.addEventListener('click', function() {
+      sidebar.classList.toggle('sidebar-collapsed');
+      mainContent.classList.toggle('content-expanded');
+    });
+    
+    // Handle mobile sidebar closing
+    const closeSidebarBtn = document.querySelector('.toggle-sidebar-btn');
+    if (closeSidebarBtn) {
+      closeSidebarBtn.addEventListener('click', function() {
+        sidebar.classList.add('sidebar-collapsed');
+        mainContent.classList.add('content-expanded');
+      });
+    }
+    
+    // Close sidebar on mobile when close button is clicked
+    const closeSidebarButton = document.getElementById('close-sidebar');
+    if (closeSidebarButton) {
+      closeSidebarButton.addEventListener('click', function() {
+        sidebar.classList.add('sidebar-collapsed');
+        mainContent.classList.add('content-expanded');
+      });
+    }
+    
+    // Submenu toggle functionality
+    const submenuToggles = document.querySelectorAll('.has-submenu');
+    submenuToggles.forEach(toggle => {
+      toggle.addEventListener('click', function(e) {
+        // Prevent default behavior only if it's a link with href="#"
+        if (this.getAttribute('href') === '#' || this.getAttribute('href').startsWith('#')) {
+          e.preventDefault();
+        }
+        
+        // Get the submenu ID from the href attribute
+        const submenuId = this.getAttribute('href') || this.getAttribute('data-bs-target');
+        
+        // Toggle the aria-expanded attribute
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !isExpanded);
+        
+        // Find the submenu and toggle it
+        const submenu = document.querySelector(submenuId);
+        if (submenu) {
+          submenu.classList.toggle('show');
+        }
+      });
+    });
+    
+    // Responsive behavior
+    function checkWidth() {
+      if (window.innerWidth < 768) {
+        sidebar.classList.add('sidebar-collapsed');
+        mainContent.classList.add('content-expanded');
+      } else {
+        sidebar.classList.remove('sidebar-collapsed');
+        mainContent.classList.remove('content-expanded');
+      }
+    }
+    
+    // Check on load
+    checkWidth();
+    
+    // Check on resize
+    window.addEventListener('resize', checkWidth);
+  });
+</script>
+{% endblock %}

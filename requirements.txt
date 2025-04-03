@@ -1,0 +1,26 @@
+# Flask - Web framework for Python
+Flask==2.2.3
+
+# Environment variable management
+python-dotenv==1.0.0
+
+# WSGI utility library for Flask
+Werkzeug==2.2.3
+
+# Flask extension for forms with CSRF protection
+Flask-WTF==1.1.1
+
+# User session management for Flask
+Flask-Login==0.6.2
+
+# Plaid API client for bank account integration
+plaid-python==14.0.0
+
+# Azure Blob Storage SDK for file uploads
+azure-storage-blob==12.16.0
+
+# MySQL client for Python (for Azure Database for MySQL)
+pymysql==1.0.3
+
+# Cryptography library for secure data handling
+cryptography==40.0.1

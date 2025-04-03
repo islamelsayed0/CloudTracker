@@ -1,0 +1,328 @@
+/*
+ * styles.css - Main Stylesheet for Muzzy Tracker
+ *
+ * This file contains all custom styles for the Muzzy Tracker application.
+ * It uses CSS variables for consistent theming and includes responsive
+ * adjustments for different screen sizes.
+ *
+ * The color palette uses:
+ * - Green (#0B6E4F): Primary color for buttons, headings, and key elements
+ * - Salmon (#FA8072): Accent color for highlights and secondary elements
+ * - Off-white (#FEFEFA): Background color for clean, professional look
+ */
+
+/* 
+ * CSS Variables
+ * Defining colors and common values as variables for consistency and easy updates
+ */
+:root {
+  --primary-green: #0B6E4F;  /* Main brand color for buttons, headings */
+  --primary-salmon: #FA8072;  /* Accent color for highlights, secondary elements */
+  --background-white: #FEFEFA;  /* Background color for main content areas */
+  --text-dark: #333333;  /* Primary text color */
+  --text-light: #FFFFFF;  /* Text color on dark backgrounds */
+}
+
+/*
+ * Global Styles
+ * Base styling for the entire application
+ */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  /* Modern, readable font stack */
+  color: var(--text-dark);  /* Default text color */
+  background-color: var(--background-white);  /* Default background color */
+}
+
+/*
+ * Navigation Styles
+ * Styling for the top navigation bar
+ */
+.navbar {
+  background-color: var(--background-white);  /* Match the main background */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);  /* Subtle shadow for depth */
+  position: sticky;  /* Stick to the top when scrolling */
+  top: 0;  /* Align to top of viewport */
+  z-index: 1000;  /* Ensure navbar stays above other content */
+}
+
+.navbar-brand {
+  color: var(--primary-green);  /* Brand name in primary color */
+  font-weight: 700;  /* Bold weight for emphasis */
+  font-size: 1.5rem;  /* Larger size for visibility */
+}
+
+.nav-link {
+  color: var(--text-dark);  /* Dark text for readability */
+  font-weight: 500;  /* Medium weight for balance */
+}
+
+.nav-link:hover {
+  color: var(--primary-green);  /* Change to primary color on hover for feedback */
+}
+
+/*
+ * Hero Section Styles
+ * Main banner at the top of the landing page
+ */
+.hero-section {
+  position: relative;  /* For positioning decorative elements */
+  height: 100vh;  /* Full viewport height */
+  min-height: 600px;  /* Minimum height for smaller screens */
+  display: flex;  /* For vertical centering */
+  align-items: center;  /* Center content vertically */
+  background-color: var(--background-white);  /* Base background color */
+  background-image: linear-gradient(135deg, var(--background-white) 0%, #FFF5F4 100%);  /* Subtle gradient */
+  overflow: hidden;  /* Prevent decorative elements from causing scrollbars */
+}
+
+.decorative-shape {
+  position: absolute;  /* Position independently of content flow */
+  bottom: 0;  /* Align to bottom */
+  right: 0;  /* Align to right */
+  width: 300px;  /* Fixed width */
+  height: 300px;  /* Fixed height */
+  background-color: rgba(250, 128, 114, 0.1);  /* Very light salmon color */
+  border-radius: 50% 0 0 0;  /* Rounded top-left corner for quarter-circle shape */
+  z-index: 0;  /* Place behind content */
+}
+
+.hero-content {
+  position: relative;  /* For proper stacking context */
+  z-index: 1;  /* Place above decorative elements */
+  padding: 2rem;  /* Spacing around content */
+}
+
+.hero-content h1 {
+  color: var(--primary-green);  /* Primary color for headline */
+  font-weight: 700;  /* Bold weight for emphasis */
+  margin-bottom: 1.5rem;  /* Space below headline */
+}
+
+/*
+ * Stock Arrow Styles
+ * Green upward arrow showing profit in the hero section
+ */
+.stock-arrow {
+  display: flex;  /* For proper alignment */
+  align-items: center;  /* Vertical centering */
+  justify-content: center;  /* Horizontal centering */
+}
+
+.profit-arrow {
+  font-size: 2.5rem;  /* Large icon size */
+  color: var(--primary-green);  /* Green color for profit indication */
+  animation: pulse 2s infinite;  /* Subtle pulsing animation */
+}
+
+/* Large Stock Arrow Styles for the right side of hero section */
+.large-stock-arrow {
+  display: flex;  /* For proper alignment */
+  align-items: center;  /* Vertical centering */
+  justify-content: center;  /* Horizontal centering */
+  width: 250px;  /* Width of the container */
+  height: 250px;  /* Height of the container */
+  position: relative;  /* For positioning the arrow */
+}
+
+.profit-arrow-large {
+  font-size: 8rem;  /* Very large icon size */
+  color: var(--primary-green);  /* Green color for profit indication */
+  /* No animation or rotation for a more professional look */
+}
+
+.hero-content p {
+  color: var(--text-dark);  /* Dark text for readability */
+  font-size: 1.25rem;  /* Larger text for subheading */
+  margin-bottom: 2rem;  /* Space below paragraph */
+}
+
+/*
+ * Button Styles
+ * Custom styling for buttons throughout the application
+ */
+.btn-primary {
+  background-color: var(--primary-green);  /* Primary color background */
+  border-color: var(--primary-green);  /* Matching border */
+  color: var(--text-light);  /* White text for contrast */
+  padding: 0.75rem 2rem;  /* Larger padding for prominence */
+  font-weight: 600;  /* Semi-bold text */
+  transition: all 0.3s ease;  /* Smooth transition for hover effects */
+}
+
+.btn-primary:hover {
+  background-color: #095a41;  /* Slightly darker on hover */
+  border-color: #095a41;  /* Matching border */
+  transform: translateY(-2px);  /* Slight lift effect */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);  /* Shadow for depth */
+}
+
+.btn-outline-secondary {
+  border-color: var(--primary-salmon);  /* Salmon border */
+  color: var(--primary-salmon);  /* Salmon text */
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--primary-salmon);  /* Fill with salmon on hover */
+  color: var(--text-light);  /* White text for contrast */
+}
+
+/*
+ * Feature Icons Styles
+ * Small feature highlights in the hero section
+ */
+.feature-icons {
+  margin-top: 3rem;  /* Space above the icons section */
+}
+
+.feature-icon {
+  text-align: center;  /* Center icon and text */
+  padding: 1rem;  /* Space around each icon */
+}
+
+.feature-icon i {
+  font-size: 2rem;  /* Large icon size */
+  margin-bottom: 0.5rem;  /* Space between icon and text */
+  color: var(--primary-green);  /* Primary color for icons */
+}
+
+.feature-icon span {
+  display: block;  /* Block display for proper spacing */
+  font-size: 0.9rem;  /* Smaller text size */
+  font-weight: 500;  /* Medium weight for readability */
+  color: var(--text-dark);  /* Dark text color */
+}
+
+/*
+ * About Section Styles
+ * Detailed feature descriptions in cards
+ */
+.about-section {
+  background-color: var(--background-white);  /* Match main background */
+  padding: 5rem 0;  /* Generous vertical padding */
+}
+
+.section-title {
+  color: var(--primary-green);  /* Primary color for title */
+  font-weight: 700;  /* Bold weight for emphasis */
+  margin-bottom: 1rem;  /* Space below title */
+}
+
+.section-subtitle {
+  font-size: 1.2rem;  /* Larger text for subtitle */
+  margin-bottom: 3rem;  /* Generous space below subtitle */
+}
+
+.feature-card {
+  background-color: white;  /* White background for cards */
+  border-radius: 10px;  /* Rounded corners */
+  padding: 2rem;  /* Generous internal padding */
+  height: 100%;  /* Full height for equal-height cards */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);  /* Subtle shadow for depth */
+  transition: transform 0.3s ease;  /* Smooth transition for hover effect */
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);  /* Lift effect on hover */
+}
+
+.feature-icon-large {
+  font-size: 3rem;  /* Large icon size */
+  color: var(--primary-green);  /* Primary color for icons */
+  margin-bottom: 1.5rem;  /* Space below icon */
+}
+
+.feature-card h3 {
+  font-size: 1.5rem;  /* Large text for card title */
+  font-weight: 600;  /* Semi-bold weight */
+  margin-bottom: 1rem;  /* Space below title */
+  color: var(--primary-green);  /* Primary color for title */
+}
+
+/*
+ * Login Section Styles
+ * Styling for the login form and card
+ */
+.login-section {
+  background-color: #f8f9fa;  /* Light gray background for contrast */
+  padding: 5rem 0;  /* Generous vertical padding */
+}
+
+.login-card {
+  border: none;  /* Remove default card border */
+  border-radius: 10px;  /* Rounded corners */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);  /* Pronounced shadow for depth */
+}
+
+.login-card .card-title {
+  color: var(--primary-green);  /* Primary color for card title */
+}
+
+/* Form control focus state - customize Bootstrap defaults */
+.form-control:focus {
+  border-color: var(--primary-green);  /* Primary color border when focused */
+  box-shadow: 0 0 0 0.25rem rgba(11, 110, 79, 0.25);  /* Matching glow effect */
+}
+
+/* Checkbox styling - customize Bootstrap defaults */
+.form-check-input:checked {
+  background-color: var(--primary-green);  /* Primary color for checked state */
+  border-color: var(--primary-green);  /* Matching border */
+}
+
+/*
+ * Footer Styles
+ * Styling for the page footer
+ */
+.footer {
+  background-color: var(--primary-green);  /* Primary color background */
+  color: var(--text-light);  /* White text for contrast */
+  padding: 2rem 0;  /* Vertical padding */
+}
+
+/*
+ * Responsive Adjustments
+ * Media queries for different screen sizes
+ */
+@media (max-width: 768px) {
+  /* Tablet and mobile adjustments */
+  
+  .hero-section {
+    height: auto;  /* Auto height instead of 100vh */
+    padding: 6rem 0;  /* Fixed padding instead */
+  }
+  
+  .hero-content h1 {
+    font-size: 2rem;  /* Smaller headline on mobile */
+  }
+  
+  /* Adjust stock arrow size on mobile */
+  .profit-arrow {
+    font-size: 1.8rem;  /* Smaller icon on mobile */
+  }
+  
+  /* Adjust large stock arrow size on mobile */
+  .large-stock-arrow {
+    width: 150px;  /* Smaller width on mobile */
+    height: 150px;  /* Smaller height on mobile */
+    margin-top: 2rem;  /* Add space above on mobile */
+  }
+  
+  .profit-arrow-large {
+    font-size: 5rem;  /* Smaller but still prominent on mobile */
+  }
+  
+  .feature-icons {
+    flex-wrap: wrap;  /* Allow icons to wrap on smaller screens */
+  }
+  
+  .feature-icon {
+    flex: 0 0 50%;  /* Two icons per row on smaller screens */
+    margin-bottom: 1.5rem;  /* Space between rows */
+  }
+}
+
+/* 
+ * Additional responsive breakpoints could be added here
+ * for extra small screens (max-width: 576px) or
+ * large screens (min-width: 992px)
+ */

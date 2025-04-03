@@ -1,0 +1,68 @@
+{# 
+  disclaimer.html - Disclaimer Page for Muzzy Tracker
+  
+  This template extends the base.html template and provides the disclaimer content.
+  It includes a comprehensive disclaimer that protects the application owner
+  while being presented in a user-friendly manner.
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Disclaimer{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body p-4 p-md-5">
+          <h1 class="text-center mb-4">Disclaimer</h1>
+          
+          <div class="alert alert-info mb-4">
+            <div class="d-flex">
+              <div class="me-3">
+                <i class="bi bi-info-circle fs-4"></i>
+              </div>
+              <div>
+                <p class="mb-0">Muzzy Tracker is a financial organization tool designed to help you track and visualize your finances. We are not financial advisors, and the information provided should not be considered financial advice.</p>
+              </div>
+            </div>
+          </div>
+          
+          <h5 class="text-primary mb-3">Understanding Muzzy Tracker's Role</h5>
+          <p>Muzzy Tracker is a helpful tool for organizing your financial information, but it's important to remember that we're not financial advisors. The information we provide is for your convenience, and you should verify any important financial decisions with qualified professionals.</p>
+          
+          <h5 class="text-primary mb-3">Information Accuracy</h5>
+          <p>While we strive to provide accurate information, Muzzy Tracker makes no representations or warranties about the completeness, reliability, or accuracy of the information provided. Any reliance you place on such information is at your own risk.</p>
+          
+          <h5 class="text-primary mb-3">Not Financial Advice</h5>
+          <p>The content provided through Muzzy Tracker is for informational and educational purposes only and is not intended to be financial, investment, legal, or tax advice. Always consult with qualified professionals regarding your specific financial situation before making any financial decisions.</p>
+          
+          <h5 class="text-primary mb-3">Calculations and Projections</h5>
+          <p>The calculations, projections, and insights provided by Muzzy Tracker are based on the information you input and should be considered estimates only. Past performance data shown in this application is not a guarantee of future results.</p>
+          
+          <h5 class="text-primary mb-3">Zakat Calculations</h5>
+          <p>The Zakat calculations provided are based on general principles and may not account for all scholarly opinions or specific situations. Please consult with a qualified Islamic scholar for definitive guidance on your Zakat obligations.</p>
+          
+          <h5 class="text-primary mb-3">Third-Party Services</h5>
+          <p>Muzzy Tracker may integrate with third-party services such as Plaid for bank account connections. We are not responsible for the content, privacy policies, or practices of any third-party services. Your use of such services is at your own risk.</p>
+          
+          <h5 class="text-primary mb-3">Limitation of Liability</h5>
+          <p>To the maximum extent permitted by law, Muzzy Tracker and its developers, owners, affiliates, and partners shall not be liable for any direct, indirect, incidental, consequential, or special damages arising out of or in any way connected with your use of this application, whether based on contract, tort, strict liability, or otherwise.</p>
+          
+          <h5 class="text-primary mb-3">Use At Your Own Risk</h5>
+          <p>Your use of Muzzy Tracker is at your sole risk. The application is provided on an "as is" and "as available" basis without warranties of any kind, either express or implied.</p>
+          
+          <div class="alert alert-light border mt-5">
+            <p class="small mb-0">By using Muzzy Tracker, you acknowledge that you have read, understood, and agree to this disclaimer. If you do not agree with any part of this disclaimer, please do not use the application.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">Return to Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

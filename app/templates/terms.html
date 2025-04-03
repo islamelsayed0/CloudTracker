@@ -1,0 +1,132 @@
+{# 
+  terms.html - Terms of Use Page for Muzzy Tracker
+  
+  This template extends the base.html template and provides the terms of use content.
+  It includes comprehensive terms that protect the application owner
+  while being presented in a clear, organized manner.
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Terms of Use{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body p-4 p-md-5">
+          <h1 class="text-center mb-4">Terms of Use</h1>
+          <p class="text-muted text-center mb-4">Last Updated: April 2, 2025</p>
+          
+          <div class="alert alert-info mb-4">
+            <div class="d-flex">
+              <div class="me-3">
+                <i class="bi bi-info-circle fs-4"></i>
+              </div>
+              <div>
+                <p class="mb-0">These Terms of Use constitute a legally binding agreement between you and Muzzy Tracker. By accessing or using the application, you agree to be bound by these terms.</p>
+              </div>
+            </div>
+          </div>
+          
+          <h5 class="text-primary mb-3">1. Agreement to Terms</h5>
+          <p>These Terms of Use constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you") and Muzzy Tracker ("we," "us" or "our"), concerning your access to and use of the Muzzy Tracker website and application (the "Application").</p>
+          <p>By accessing or using the Application, you agree to be bound by these Terms of Use. If you disagree with any part of the terms, you may not access the Application.</p>
+          
+          <h5 class="text-primary mb-3">2. Intellectual Property Rights</h5>
+          <p>Unless otherwise indicated, the Application is our proprietary property and all source code, databases, functionality, software, website designs, audio, video, text, photographs, and graphics on the Application (collectively, the "Content") and the trademarks, service marks, and logos contained therein (the "Marks") are owned or controlled by us or licensed to us, and are protected by copyright and trademark laws and various other intellectual property rights.</p>
+          <p>The Content and Marks are provided in or through the Application "AS IS" for your personal, non-commercial use only. You must not reproduce, distribute, modify, create derivative works of, publicly display, publicly perform, republish, download, store, or transmit any of the material on our Application.</p>
+          
+          <h5 class="text-primary mb-3">3. User Representations</h5>
+          <p>By using the Application, you represent and warrant that:</p>
+          <ul>
+            <li>You have the legal capacity and agree to comply with these Terms of Use</li>
+            <li>You are not a minor in the jurisdiction in which you reside</li>
+            <li>You will not access the Application through automated or non-human means</li>
+            <li>You will not use the Application for any illegal or unauthorized purpose</li>
+            <li>Your use of the Application will not violate any applicable law or regulation</li>
+          </ul>
+          
+          <h5 class="text-primary mb-3">4. User Registration</h5>
+          <p>You may be required to register with the Application. You agree to keep your password confidential and will be responsible for all use of your account and password. We reserve the right to remove, reclaim, or change a username you select if we determine, in our sole discretion, that such username is inappropriate, obscene, or otherwise objectionable.</p>
+          
+          <h5 class="text-primary mb-3">5. Prohibited Activities</h5>
+          <p>You may not access or use the Application for any purpose other than that for which we make the Application available. The Application may not be used in connection with any commercial endeavors except those that are specifically endorsed or approved by us.</p>
+          
+          <h5 class="text-primary mb-3">6. Financial Disclaimer</h5>
+          <p>Muzzy Tracker is a financial organization and tracking tool only. The information provided by this application is for general informational and educational purposes only.</p>
+          <ul>
+            <li>Muzzy Tracker is NOT a financial advisor, broker, or tax advisor</li>
+            <li>The information provided by this application should not be considered financial, investment, legal, or tax advice</li>
+            <li>The calculations, projections, and insights provided are based on the information you input and should be considered estimates only</li>
+            <li>Past performance data shown in this application is not a guarantee of future results</li>
+            <li>The Zakat calculations provided are based on general principles and may not account for all scholarly opinions or specific situations</li>
+            <li>Always consult with qualified professionals regarding your specific financial situation before making any financial decisions</li>
+          </ul>
+          
+          <h5 class="text-primary mb-3">7. Third-Party Websites and Content</h5>
+          <p>The Application may contain links to other websites ("Third-Party Websites") as well as articles, photographs, text, graphics, pictures, designs, music, sound, video, information, applications, software, and other content or items belonging to or originating from third parties ("Third-Party Content"). We are not responsible for any Third-Party Websites or Third-Party Content accessed through the Application.</p>
+          
+          <h5 class="text-primary mb-3">8. Application Management</h5>
+          <p>We reserve the right, but not the obligation, to:</p>
+          <ul>
+            <li>Monitor the Application for violations of these Terms of Use</li>
+            <li>Take appropriate legal action against anyone who, in our sole discretion, violates the law or these Terms of Use</li>
+            <li>In our sole discretion and without limitation, refuse, restrict access to, limit the availability of, or disable (to the extent technologically feasible) any of your Contributions or any portion thereof</li>
+            <li>In our sole discretion and without limitation, notice, or liability, to remove from the Application or otherwise disable all files and content that are excessive in size or are in any way burdensome to our systems</li>
+            <li>Otherwise manage the Application in a manner designed to protect our rights and property and to facilitate the proper functioning of the Application</li>
+          </ul>
+          
+          <h5 class="text-primary mb-3">9. Privacy Policy</h5>
+          <p>We care about data privacy and security. Please review our <a href="{{ url_for('privacy') }}">Privacy Policy</a>. By using the Application, you agree to be bound by our Privacy Policy, which is incorporated into these Terms of Use.</p>
+          
+          <h5 class="text-primary mb-3">10. Term and Termination</h5>
+          <p>These Terms of Use shall remain in full force and effect while you use the Application. We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach these Terms of Use.</p>
+          
+          <h5 class="text-primary mb-3">11. Modifications and Interruptions</h5>
+          <p>We reserve the right to change, modify, or remove the contents of the Application at any time or for any reason at our sole discretion without notice. We also reserve the right to modify or discontinue all or part of the Application without notice at any time.</p>
+          
+          <h5 class="text-primary mb-3">12. Governing Law</h5>
+          <p>These Terms of Use and your use of the Application are governed by and construed in accordance with the laws applicable to agreements made and to be entirely performed within the United States, without regard to its conflict of law principles.</p>
+          
+          <h5 class="text-primary mb-3">13. Dispute Resolution</h5>
+          <p>Any legal action of whatever nature brought by either you or us shall be commenced or prosecuted in the state and federal courts located in the United States, and you and we hereby consent to, and waive all defenses of lack of personal jurisdiction and forum non conveniens with respect to venue and jurisdiction in such state and federal courts.</p>
+          
+          <h5 class="text-primary mb-3">14. Corrections</h5>
+          <p>There may be information on the Application that contains typographical errors, inaccuracies, or omissions, including descriptions, pricing, availability, and various other information. We reserve the right to correct any errors, inaccuracies, or omissions and to change or update the information on the Application at any time, without prior notice.</p>
+          
+          <h5 class="text-primary mb-3">15. Disclaimer</h5>
+          <p>THE APPLICATION IS PROVIDED ON AN AS-IS AND AS-AVAILABLE BASIS. YOU AGREE THAT YOUR USE OF THE APPLICATION AND OUR SERVICES WILL BE AT YOUR SOLE RISK. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, IN CONNECTION WITH THE APPLICATION AND YOUR USE THEREOF.</p>
+          
+          <h5 class="text-primary mb-3">16. Limitations of Liability</h5>
+          <p>IN NO EVENT WILL WE OR OUR DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY DIRECT, INDIRECT, CONSEQUENTIAL, EXEMPLARY, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES, INCLUDING LOST PROFIT, LOST REVENUE, LOSS OF DATA, OR OTHER DAMAGES ARISING FROM YOUR USE OF THE APPLICATION.</p>
+          
+          <h5 class="text-primary mb-3">17. Indemnification</h5>
+          <p>You agree to defend, indemnify, and hold us harmless, including our subsidiaries, affiliates, and all of our respective officers, agents, partners, and employees, from and against any loss, damage, liability, claim, or demand, including reasonable attorneys' fees and expenses, made by any third party due to or arising out of your use of the Application, and/or arising from a breach of these Terms of Use.</p>
+          
+          <h5 class="text-primary mb-3">18. User Data</h5>
+          <p>We will maintain certain data that you transmit to the Application for the purpose of managing the performance of the Application, as well as data relating to your use of the Application. Although we perform regular routine backups of data, you are solely responsible for all data that you transmit or that relates to any activity you have undertaken using the Application.</p>
+          
+          <h5 class="text-primary mb-3">19. Electronic Communications</h5>
+          <p>Visiting the Application, sending us emails, and completing online forms constitute electronic communications. You consent to receive electronic communications, and you agree that all agreements, notices, disclosures, and other communications we provide to you electronically satisfy any legal requirement that such communication be in writing.</p>
+          
+          <h5 class="text-primary mb-3">20. Miscellaneous</h5>
+          <p>These Terms of Use and any policies or operating rules posted by us on the Application or in respect to the Application constitute the entire agreement and understanding between you and us. Our failure to exercise or enforce any right or provision of these Terms of Use shall not operate as a waiver of such right or provision.</p>
+          
+          <h5 class="text-primary mb-3">21. Contact Us</h5>
+          <p>In order to resolve a complaint regarding the Application or to receive further information regarding use of the Application, please contact us at: support@muzzytracker.com</p>
+          
+          <div class="alert alert-light border mt-5">
+            <p class="small mb-0">By using Muzzy Tracker, you acknowledge that you have read, understood, and agree to these Terms of Use. If you do not agree with any part of these terms, please do not use the application.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">Return to Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,669 @@
+{# 
+  import.html - CSV Import Page for Muzzy Tracker
+  
+  This template extends the base.html template and provides the CSV import interface.
+  It allows users to upload CSV files with financial data as an alternative to Plaid integration.
+  The page includes:
+  1. File upload interface
+  2. Column mapping functionality
+  3. Preview and validation
+  4. Import confirmation
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Import CSV Data{% endblock %}
+
+{% block extra_css %}
+<style>
+  .import-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  .upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  
+  .upload-area:hover, .upload-area.dragover {
+    border-color: var(--primary-green);
+    background-color: rgba(11, 110, 79, 0.05);
+  }
+  
+  .upload-icon {
+    font-size: 3rem;
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+  }
+  
+  .mapping-table th {
+    background-color: #f8f9fa;
+  }
+  
+  .preview-table {
+    font-size: 0.9rem;
+  }
+  
+  .preview-table th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 1;
+  }
+  
+  .step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  
+  .step-indicator::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #dee2e6;
+    z-index: 0;
+  }
+  
+  .step {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+  
+  .step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+  }
+  
+  .step.active .step-number {
+    background-color: var(--primary-green);
+  }
+  
+  .step.completed .step-number {
+    background-color: var(--primary-green);
+  }
+  
+  .step.completed .step-number::after {
+    content: '✓';
+  }
+  
+  .step-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+  
+  .step.active .step-label {
+    color: var(--primary-green);
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="mb-4">Import Financial Data</h1>
+      
+      <div class="alert alert-info">
+        <div class="d-flex">
+          <div class="me-3">
+            <i class="bi bi-info-circle fs-4"></i>
+          </div>
+          <div>
+            <p class="mb-1">CSV import allows you to upload your financial data without connecting your bank accounts.</p>
+            <p class="mb-0 small">Your data is processed securely, and you can anonymize sensitive information during import.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Step Indicator -->
+      <div class="step-indicator">
+        <div class="step active">
+          <div class="step-number">1</div>
+          <div class="step-label">Upload File</div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-label">Map Columns</div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-label">Preview Data</div>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-label">Import</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-lg-8">
+      <!-- Step 1: Upload File (visible by default) -->
+      <div class="card import-card mb-4" id="step1">
+        <div class="card-body p-4">
+          <h5 class="card-title mb-4">Upload CSV File</h5>
+          
+          <div class="upload-area" id="upload-area">
+            <input type="file" id="csv-file" accept=".csv" class="d-none">
+            <div class="upload-icon">
+              <i class="bi bi-cloud-arrow-up"></i>
+            </div>
+            <h5>Drag & Drop your CSV file here</h5>
+            <p class="text-muted mb-3">or</p>
+            <button class="btn btn-primary" id="browse-button">Browse Files</button>
+            <p class="small text-muted mt-3">Maximum file size: 10MB</p>
+          </div>
+          
+          <div class="mt-4">
+            <h6>Supported Banks and Formats</h6>
+            <div class="row g-3 mt-2">
+              <div class="col-md-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h6 class="card-title">Chase</h6>
+                    <p class="card-text small">Download transactions as CSV from your Chase account.</p>
+                    <a href="#" class="small">View Instructions</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h6 class="card-title">Bank of America</h6>
+                    <p class="card-text small">Export account activity as CSV file.</p>
+                    <a href="#" class="small">View Instructions</a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h6 class="card-title">Wells Fargo</h6>
+                    <p class="card-text small">Download transactions in CSV format.</p>
+                    <a href="#" class="small">View Instructions</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-4">
+              <a href="#" class="small">View all supported formats</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-between">
+          <button class="btn btn-link text-muted" disabled>Back</button>
+          <button class="btn btn-primary" id="step1-next" disabled>Next: Map Columns</button>
+        </div>
+      </div>
+      
+      <!-- Step 2: Map Columns (hidden initially) -->
+      <div class="card import-card mb-4 d-none" id="step2">
+        <div class="card-body p-4">
+          <h5 class="card-title mb-4">Map CSV Columns</h5>
+          
+          <p>Match your CSV columns to Muzzy Tracker fields. We've made our best guess, but please verify.</p>
+          
+          <div class="table-responsive">
+            <table class="table mapping-table">
+              <thead>
+                <tr>
+                  <th>CSV Column</th>
+                  <th>Muzzy Tracker Field</th>
+                  <th>Sample Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Date</td>
+                  <td>
+                    <select class="form-select">
+                      <option selected>Transaction Date</option>
+                      <option>Description</option>
+                      <option>Amount</option>
+                      <option>Category</option>
+                      <option>Account</option>
+                      <option>Ignore this column</option>
+                    </select>
+                  </td>
+                  <td><code>2025-04-01</code></td>
+                </tr>
+                <tr>
+                  <td>Description</td>
+                  <td>
+                    <select class="form-select">
+                      <option>Transaction Date</option>
+                      <option selected>Description</option>
+                      <option>Amount</option>
+                      <option>Category</option>
+                      <option>Account</option>
+                      <option>Ignore this column</option>
+                    </select>
+                  </td>
+                  <td><code>GROCERY STORE</code></td>
+                </tr>
+                <tr>
+                  <td>Amount</td>
+                  <td>
+                    <select class="form-select">
+                      <option>Transaction Date</option>
+                      <option>Description</option>
+                      <option selected>Amount</option>
+                      <option>Category</option>
+                      <option>Account</option>
+                      <option>Ignore this column</option>
+                    </select>
+                  </td>
+                  <td><code>-45.67</code></td>
+                </tr>
+                <tr>
+                  <td>Category</td>
+                  <td>
+                    <select class="form-select">
+                      <option>Transaction Date</option>
+                      <option>Description</option>
+                      <option>Amount</option>
+                      <option selected>Category</option>
+                      <option>Account</option>
+                      <option>Ignore this column</option>
+                    </select>
+                  </td>
+                  <td><code>Groceries</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="mt-4">
+            <h6>Date Format</h6>
+            <select class="form-select w-auto">
+              <option selected>YYYY-MM-DD (2025-04-01)</option>
+              <option>MM/DD/YYYY (04/01/2025)</option>
+              <option>DD/MM/YYYY (01/04/2025)</option>
+              <option>MM-DD-YYYY (04-01-2025)</option>
+            </select>
+            <div class="form-text">Select the format that matches your CSV file's dates.</div>
+          </div>
+          
+          <div class="mt-4">
+            <h6>Amount Format</h6>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="amountFormat" id="negativeExpense" checked>
+              <label class="form-check-label" for="negativeExpense">
+                Negative numbers (-) for expenses, positive for income
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="amountFormat" id="separateColumns">
+              <label class="form-check-label" for="separateColumns">
+                Separate columns for expenses and income
+              </label>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="saveMapping" checked>
+              <label class="form-check-label" for="saveMapping">
+                Save this mapping for future imports
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-between">
+          <button class="btn btn-link text-muted" id="step2-back">Back</button>
+          <button class="btn btn-primary" id="step2-next">Next: Preview Data</button>
+        </div>
+      </div>
+      
+      <!-- Step 3: Preview Data (hidden initially) -->
+      <div class="card import-card mb-4 d-none" id="step3">
+        <div class="card-body p-4">
+          <h5 class="card-title mb-4">Preview Data</h5>
+          
+          <p>Review your data before importing. We've detected <strong>157 transactions</strong> from <strong>Jan 1, 2025</strong> to <strong>Mar 31, 2025</strong>.</p>
+          
+          <div class="alert alert-warning">
+            <div class="d-flex">
+              <div class="me-3">
+                <i class="bi bi-exclamation-triangle"></i>
+              </div>
+              <div>
+                <p class="mb-1"><strong>3 potential issues detected</strong></p>
+                <ul class="mb-0 small">
+                  <li>5 transactions have missing categories</li>
+                  <li>2 transactions have invalid dates</li>
+                  <li>1 transaction has an unusually large amount ($5,000.00)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+            <table class="table table-hover preview-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mar 30, 2025</td>
+                  <td>WHOLE FOODS MARKET</td>
+                  <td class="text-danger">-$84.32</td>
+                  <td>Groceries</td>
+                  <td><span class="badge bg-success">Valid</span></td>
+                </tr>
+                <tr>
+                  <td>Mar 28, 2025</td>
+                  <td>NETFLIX SUBSCRIPTION</td>
+                  <td class="text-danger">-$15.99</td>
+                  <td>Entertainment</td>
+                  <td><span class="badge bg-success">Valid</span></td>
+                </tr>
+                <tr>
+                  <td>Mar 27, 2025</td>
+                  <td>TRANSFER FROM SAVINGS</td>
+                  <td class="text-success">$500.00</td>
+                  <td>Transfer</td>
+                  <td><span class="badge bg-success">Valid</span></td>
+                </tr>
+                <tr class="table-warning">
+                  <td>Mar 25, 2025</td>
+                  <td>AMAZON PURCHASE</td>
+                  <td class="text-danger">-$45.67</td>
+                  <td><span class="text-danger">Missing</span></td>
+                  <td><span class="badge bg-warning text-dark">Warning</span></td>
+                </tr>
+                <tr>
+                  <td>Mar 22, 2025</td>
+                  <td>PAYROLL DEPOSIT</td>
+                  <td class="text-success">$3,250.00</td>
+                  <td>Income</td>
+                  <td><span class="badge bg-success">Valid</span></td>
+                </tr>
+                <tr class="table-warning">
+                  <td><span class="text-danger">Invalid Date</span></td>
+                  <td>STARBUCKS</td>
+                  <td class="text-danger">-$5.45</td>
+                  <td>Dining</td>
+                  <td><span class="badge bg-warning text-dark">Warning</span></td>
+                </tr>
+                <tr class="table-warning">
+                  <td>Mar 15, 2025</td>
+                  <td>HOME RENOVATION</td>
+                  <td class="text-danger">-$5,000.00</td>
+                  <td>Home</td>
+                  <td><span class="badge bg-warning text-dark">Large Amount</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="mt-4">
+            <h6>Options</h6>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="skipDuplicates" checked>
+              <label class="form-check-label" for="skipDuplicates">
+                Skip duplicate transactions
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="autoCategorize" checked>
+              <label class="form-check-label" for="autoCategorize">
+                Auto-categorize transactions where possible
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="fixIssues" checked>
+              <label class="form-check-label" for="fixIssues">
+                Attempt to fix issues automatically
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-between">
+          <button class="btn btn-link text-muted" id="step3-back">Back</button>
+          <button class="btn btn-primary" id="step3-next">Import Data</button>
+        </div>
+      </div>
+      
+      <!-- Step 4: Import Confirmation (hidden initially) -->
+      <div class="card import-card mb-4 d-none" id="step4">
+        <div class="card-body p-4 text-center">
+          <div class="my-4">
+            <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+          </div>
+          <h4 class="mb-3">Import Successful!</h4>
+          <p>We've successfully imported <strong>157 transactions</strong> to your account.</p>
+          
+          <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h6 class="card-title">Import Summary</h6>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Total Transactions:</span>
+                    <strong>157</strong>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Date Range:</span>
+                    <strong>Jan 1, 2025 - Mar 31, 2025</strong>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Total Income:</span>
+                    <strong class="text-success">$9,750.00</strong>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <span>Total Expenses:</span>
+                    <strong class="text-danger">$7,432.45</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <p class="small text-muted">Your data has been processed and is now available in your dashboard.</p>
+          </div>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-center">
+          <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">CSV Import Guide</h5>
+          <p class="card-text">Follow these steps to import your financial data:</p>
+          <ol class="small">
+            <li class="mb-2">Export transactions from your bank as a CSV file</li>
+            <li class="mb-2">Upload the CSV file to Muzzy Tracker</li>
+            <li class="mb-2">Map the columns to match our system</li>
+            <li class="mb-2">Review the data for any issues</li>
+            <li>Import the data to your account</li>
+          </ol>
+        </div>
+      </div>
+      
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">Privacy & Security</h5>
+          <p class="card-text small">Your data security is our priority:</p>
+          <ul class="small">
+            <li>Your CSV data is processed securely</li>
+            <li>Original CSV files are not stored after processing</li>
+            <li>You can anonymize sensitive information</li>
+            <li>All data is encrypted during transfer and storage</li>
+          </ul>
+          <a href="{{ url_for('privacy') }}" class="small">Learn more about our privacy practices</a>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Need Help?</h5>
+          <p class="card-text small">Having trouble with your import?</p>
+          <ul class="small">
+            <li><a href="#">View our CSV format guide</a></li>
+            <li><a href="#">Common import issues</a></li>
+            <li><a href="#">Contact support</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('csv-file');
+    const browseButton = document.getElementById('browse-button');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    const step4 = document.getElementById('step4');
+    const step1Next = document.getElementById('step1-next');
+    const step2Back = document.getElementById('step2-back');
+    const step2Next = document.getElementById('step2-next');
+    const step3Back = document.getElementById('step3-back');
+    const step3Next = document.getElementById('step3-next');
+    
+    // Step indicators
+    const stepIndicators = document.querySelectorAll('.step');
+    
+    // File upload handling
+    browseButton.addEventListener('click', function() {
+      fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files.length > 0) {
+        // Enable next button when file is selected
+        step1Next.disabled = false;
+        
+        // Show file name in upload area
+        const fileName = fileInput.files[0].name;
+        uploadArea.innerHTML = `
+          <div class="upload-icon">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+          <h5>${fileName}</h5>
+          <p class="text-muted mb-3">File selected</p>
+          <button class="btn btn-outline-secondary btn-sm" id="change-file">Change File</button>
+        `;
+        
+        // Re-attach click handler to new button
+        document.getElementById('change-file').addEventListener('click', function(e) {
+          e.preventDefault();
+          fileInput.click();
+        });
+      }
+    });
+    
+    // Drag and drop handling
+    uploadArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function() {
+      uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      
+      if (e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        
+        // Trigger change event
+        const event = new Event('change');
+        fileInput.dispatchEvent(event);
+      }
+    });
+    
+    // Navigation between steps
+    step1Next.addEventListener('click', function() {
+      step1.classList.add('d-none');
+      step2.classList.remove('d-none');
+      
+      // Update step indicators
+      stepIndicators[0].classList.remove('active');
+      stepIndicators[0].classList.add('completed');
+      stepIndicators[1].classList.add('active');
+    });
+    
+    step2Back.addEventListener('click', function() {
+      step2.classList.add('d-none');
+      step1.classList.remove('d-none');
+      
+      // Update step indicators
+      stepIndicators[1].classList.remove('active');
+      stepIndicators[0].classList.remove('completed');
+      stepIndicators[0].classList.add('active');
+    });
+    
+    step2Next.addEventListener('click', function() {
+      step2.classList.add('d-none');
+      step3.classList.remove('d-none');
+      
+      // Update step indicators
+      stepIndicators[1].classList.remove('active');
+      stepIndicators[1].classList.add('completed');
+      stepIndicators[2].classList.add('active');
+    });
+    
+    step3Back.addEventListener('click', function() {
+      step3.classList.add('d-none');
+      step2.classList.remove('d-none');
+      
+      // Update step indicators
+      stepIndicators[2].classList.remove('active');
+      stepIndicators[1].classList.remove('completed');
+      stepIndicators[1].classList.add('active');
+    });
+    
+    step3Next.addEventListener('click', function() {
+      step3.classList.add('d-none');
+      step4.classList.remove('d-none');
+      
+      // Update step indicators
+      stepIndicators[2].classList.remove('active');
+      stepIndicators[2].classList.add('completed');
+      stepIndicators[3].classList.add('active');
+    });
+  });
+</script>
+{% endblock %}

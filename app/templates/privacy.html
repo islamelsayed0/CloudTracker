@@ -1,0 +1,159 @@
+{# 
+  privacy.html - Privacy Policy Page for Muzzy Tracker
+  
+  This template extends the base.html template and provides the privacy policy content.
+  It includes comprehensive privacy information that protects the application owner
+  while being presented in a clear, organized manner.
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Privacy Policy{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body p-4 p-md-5">
+          <h1 class="text-center mb-4">Privacy Policy</h1>
+          <p class="text-muted text-center mb-4">Last Updated: April 2, 2025</p>
+          
+          <div class="alert alert-info mb-4">
+            <div class="d-flex">
+              <div class="me-3">
+                <i class="bi bi-shield-lock fs-4"></i>
+              </div>
+              <div>
+                <p class="mb-0">This Privacy Policy describes how Muzzy Tracker collects, uses, and discloses your information when you use our website and application. We take your privacy seriously and are committed to protecting your personal and financial information.</p>
+              </div>
+            </div>
+          </div>
+          
+          <h5 class="text-primary mb-3">1. Information We Collect</h5>
+          
+          <h6 class="fw-bold mt-4 mb-2">Personal Information</h6>
+          <p>When you register for an account, we may collect the following types of personal information:</p>
+          <ul>
+            <li>Name</li>
+            <li>Email address</li>
+            <li>Password (stored in encrypted form)</li>
+            <li>Profile information you choose to provide</li>
+          </ul>
+          
+          <h6 class="fw-bold mt-4 mb-2">Financial Information</h6>
+          <p>When you use our financial tracking features, we may collect:</p>
+          <ul>
+            <li>Bank account information through our secure third-party provider, Plaid</li>
+            <li>Transaction data</li>
+            <li>Financial account balances</li>
+            <li>Investment information</li>
+            <li>Credit card information</li>
+            <li>Subscription details</li>
+            <li>Custom financial categories and tags you create</li>
+          </ul>
+          
+          <h6 class="fw-bold mt-4 mb-2">Usage Information</h6>
+          <p>We automatically collect certain information about your device and how you interact with our Application, including:</p>
+          <ul>
+            <li>IP address</li>
+            <li>Device information</li>
+            <li>Browser type</li>
+            <li>Operating system</li>
+            <li>Pages visited</li>
+            <li>Time spent on pages</li>
+            <li>Referring website</li>
+            <li>Click-stream data</li>
+          </ul>
+          
+          <h6 class="fw-bold mt-4 mb-2">Cookies and Similar Technologies</h6>
+          <p>We use cookies and similar tracking technologies to track activity on our Application and hold certain information. You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.</p>
+          
+          <h5 class="text-primary mb-3 mt-4">2. How We Use Your Information</h5>
+          <p>We use the information we collect to:</p>
+          <ul>
+            <li>Provide, maintain, and improve our Application</li>
+            <li>Process and complete transactions</li>
+            <li>Send you technical notices and support messages</li>
+            <li>Respond to your comments and questions</li>
+            <li>Develop new products and services</li>
+            <li>Generate anonymized, aggregate statistics about how users interact with our Application</li>
+            <li>Protect against, identify, and prevent fraud and other illegal activity</li>
+          </ul>
+          
+          <h5 class="text-primary mb-3 mt-4">3. How We Share Your Information</h5>
+          <p>We may share your information in the following circumstances:</p>
+          
+          <h6 class="fw-bold mt-4 mb-2">Third-Party Service Providers</h6>
+          <p>We may share your information with third-party vendors, service providers, and other third parties who perform services on our behalf, such as:</p>
+          <ul>
+            <li>Plaid (for bank account connections)</li>
+            <li>Cloud hosting providers</li>
+            <li>Analytics providers</li>
+            <li>Customer service providers</li>
+            <li>Email service providers</li>
+          </ul>
+          
+          <h6 class="fw-bold mt-4 mb-2">Legal Requirements</h6>
+          <p>We may disclose your information if required to do so by law or in response to valid requests by public authorities (e.g., a court or government agency).</p>
+          
+          <h6 class="fw-bold mt-4 mb-2">Business Transfers</h6>
+          <p>If we are involved in a merger, acquisition, or sale of all or a portion of our assets, your information may be transferred as part of that transaction.</p>
+          
+          <h6 class="fw-bold mt-4 mb-2">With Your Consent</h6>
+          <p>We may share your information for any other purpose with your consent.</p>
+          
+          <h5 class="text-primary mb-3 mt-4">4. Data Security</h5>
+          <p>We have implemented appropriate technical and organizational security measures designed to protect the security of any personal information we process. However, please also remember that we cannot guarantee that the internet itself is 100% secure.</p>
+          
+          <h5 class="text-primary mb-3 mt-4">5. Data Retention</h5>
+          <p>We will retain your personal information only for as long as is necessary for the purposes set out in this Privacy Policy. We will retain and use your information to the extent necessary to comply with our legal obligations, resolve disputes, and enforce our policies.</p>
+          
+          <h5 class="text-primary mb-3 mt-4">6. Your Data Protection Rights</h5>
+          <p>Depending on your location, you may have the following data protection rights:</p>
+          <ul>
+            <li>The right to access, update, or delete your personal information</li>
+            <li>The right to rectification if your information is inaccurate or incomplete</li>
+            <li>The right to object to our processing of your personal data</li>
+            <li>The right to request restriction of processing your personal information</li>
+            <li>The right to data portability</li>
+            <li>The right to withdraw consent</li>
+          </ul>
+          
+          <h5 class="text-primary mb-3 mt-4">7. Third-Party Services</h5>
+          
+          <h6 class="fw-bold mt-4 mb-2">Plaid Integration</h6>
+          <p>We use Plaid to connect to your financial institutions. When you use Plaid through our Application, you are also subject to Plaid's Privacy Policy (available at https://plaid.com/legal/#privacy-policy).</p>
+          <p>Plaid collects information from your financial accounts, including account information, balances, transactions, and account holder details. We only receive the data necessary to provide our services to you.</p>
+          
+          <h5 class="text-primary mb-3 mt-4">8. Children's Privacy</h5>
+          <p>Our Application is not intended for children under the age of 18. We do not knowingly collect personally identifiable information from children under 18.</p>
+          
+          <h5 class="text-primary mb-3 mt-4">9. CSV Import Option</h5>
+          <p>As an alternative to connecting your bank accounts through Plaid, we offer a CSV import option. When you use this feature:</p>
+          <ul>
+            <li>Your financial data is processed locally in your browser</li>
+            <li>You maintain control over which data is uploaded to our servers</li>
+            <li>Original CSV files are not stored after processing</li>
+            <li>You can anonymize sensitive information during import</li>
+          </ul>
+          
+          <h5 class="text-primary mb-3 mt-4">10. Changes to This Privacy Policy</h5>
+          <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.</p>
+          
+          <h5 class="text-primary mb-3 mt-4">11. Contact Us</h5>
+          <p>If you have any questions about this Privacy Policy, please contact us at: privacy@muzzytracker.com</p>
+          
+          <div class="alert alert-light border mt-5">
+            <p class="small mb-0">By using Muzzy Tracker, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center mt-4">
+        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">Return to Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
