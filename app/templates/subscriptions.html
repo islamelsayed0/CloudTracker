@@ -1,0 +1,725 @@
+{# 
+  subscriptions.html - Subscriptions Page for Muzzy Tracker
+  
+  This template extends the base.html template and provides the subscriptions interface.
+  It includes:
+  1. List of all recurring monthly payments
+  2. Payment schedule and renewal alerts
+  3. Subscription management options
+  4. Cost analysis and optimization suggestions
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Subscriptions{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Subscriptions page specific styles */
+  .page-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 2rem;
+  }
+  
+  .subscription-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    margin-bottom: 2rem;
+  }
+  
+  .subscription-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .subscription-card .card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+    color: var(--primary-green);
+  }
+  
+  .subscription-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  
+  .icon-entertainment { background-color: #4E79A7; }
+  .icon-software { background-color: #F28E2B; }
+  .icon-health { background-color: #59A14F; }
+  .icon-utilities { background-color: #76B7B2; }
+  .icon-shopping { background-color: #E15759; }
+  .icon-other { background-color: #B07AA1; }
+  
+  .subscription-item {
+    padding: 1.25rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+  }
+  
+  .subscription-item:last-child {
+    border-bottom: none;
+  }
+  
+  .subscription-item:hover {
+    background-color: rgba(11, 110, 79, 0.05);
+  }
+  
+  .subscription-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .subscription-details {
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+  
+  .subscription-price {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #dc3545;
+  }
+  
+  .subscription-frequency {
+    font-size: 0.8rem;
+    color: #6c757d;
+  }
+  
+  .subscription-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .category-badge {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 50rem;
+  }
+  
+  .summary-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+  }
+  
+  .summary-card h5 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-green);
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .summary-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .summary-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid #dee2e6;
+  }
+  
+  .calendar-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+  
+  .calendar-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+    color: var(--primary-green);
+    padding: 1rem 1.5rem;
+  }
+  
+  .calendar-body {
+    padding: 1.5rem;
+  }
+  
+  .calendar-month {
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  .calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+  }
+  
+  .calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: relative;
+  }
+  
+  .calendar-day.has-event {
+    background-color: rgba(11, 110, 79, 0.1);
+    font-weight: 600;
+  }
+  
+  .calendar-day.has-event::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--primary-green);
+  }
+  
+  .calendar-day.today {
+    background-color: var(--primary-green);
+    color: white;
+    font-weight: 600;
+  }
+  
+  .calendar-day.other-month {
+    color: #ced4da;
+  }
+  
+  .renewal-alert {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.25rem;
+  }
+  
+  .renewal-alert-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .renewal-alert-title i {
+    margin-right: 0.5rem;
+    color: #ffc107;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h1 class="mb-0">Subscriptions</h1>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <button class="btn btn-primary">
+          <i class="bi bi-plus"></i> Add Subscription
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-lg-8">
+      <!-- Renewal Alerts -->
+      <div class="renewal-alert">
+        <div class="renewal-alert-title">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          Upcoming Renewals
+        </div>
+        <p class="mb-0">You have 2 subscriptions renewing in the next 7 days. <a href="#" class="fw-bold">Review them</a> to avoid unwanted charges.</p>
+      </div>
+      
+      <!-- Subscriptions List -->
+      <div class="subscription-card card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>All Subscriptions</div>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#">Sort by Name</a></li>
+              <li><a class="dropdown-item" href="#">Sort by Price</a></li>
+              <li><a class="dropdown-item" href="#">Sort by Renewal Date</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#">Filter by Category</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <!-- Subscription Item 1 -->
+          <div class="subscription-item">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="subscription-icon icon-entertainment">
+                    <i class="bi bi-film"></i>
+                  </div>
+                  <div>
+                    <div class="subscription-name">Netflix</div>
+                    <div class="subscription-details">
+                      <span class="badge bg-light text-dark category-badge">Entertainment</span>
+                      <span class="ms-2">Next payment: Apr 15, 2025</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="subscription-price">$15.99</div>
+                <div class="subscription-frequency">Monthly</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="subscription-actions">
+                  <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Subscription Item 2 -->
+          <div class="subscription-item">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="subscription-icon icon-entertainment">
+                    <i class="bi bi-music-note-beamed"></i>
+                  </div>
+                  <div>
+                    <div class="subscription-name">Spotify</div>
+                    <div class="subscription-details">
+                      <span class="badge bg-light text-dark category-badge">Entertainment</span>
+                      <span class="ms-2">Next payment: Apr 22, 2025</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="subscription-price">$9.99</div>
+                <div class="subscription-frequency">Monthly</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="subscription-actions">
+                  <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Subscription Item 3 -->
+          <div class="subscription-item">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="subscription-icon icon-software">
+                    <i class="bi bi-brush"></i>
+                  </div>
+                  <div>
+                    <div class="subscription-name">Adobe Creative Cloud</div>
+                    <div class="subscription-details">
+                      <span class="badge bg-light text-dark category-badge">Software</span>
+                      <span class="ms-2">Next payment: Apr 05, 2025</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="subscription-price">$52.99</div>
+                <div class="subscription-frequency">Monthly</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="subscription-actions">
+                  <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Subscription Item 4 -->
+          <div class="subscription-item">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="subscription-icon icon-health">
+                    <i class="bi bi-heart-pulse"></i>
+                  </div>
+                  <div>
+                    <div class="subscription-name">Gym Membership</div>
+                    <div class="subscription-details">
+                      <span class="badge bg-light text-dark category-badge">Health</span>
+                      <span class="ms-2">Next payment: Apr 01, 2025</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="subscription-price">$45.00</div>
+                <div class="subscription-frequency">Monthly</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="subscription-actions">
+                  <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Subscription Item 5 -->
+          <div class="subscription-item">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="subscription-icon icon-utilities">
+                    <i class="bi bi-cloud"></i>
+                  </div>
+                  <div>
+                    <div class="subscription-name">iCloud Storage</div>
+                    <div class="subscription-details">
+                      <span class="badge bg-light text-dark category-badge">Utilities</span>
+                      <span class="ms-2">Next payment: Apr 18, 2025</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="subscription-price">$2.99</div>
+                <div class="subscription-frequency">Monthly</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="subscription-actions">
+                  <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Subscription Item 6 -->
+          <div class="subscription-item">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="subscription-icon icon-shopping">
+                    <i class="bi bi-box-seam"></i>
+                  </div>
+                  <div>
+                    <div class="subscription-name">Amazon Prime</div>
+                    <div class="subscription-details">
+                      <span class="badge bg-light text-dark category-badge">Shopping</span>
+                      <span class="ms-2">Next payment: Jul 15, 2025</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="subscription-price">$139.00</div>
+                <div class="subscription-frequency">Yearly</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="subscription-actions">
+                  <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Payment Calendar -->
+      <div class="calendar-card card">
+        <div class="calendar-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>Payment Calendar</div>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="calendar-body">
+          <div class="calendar-month">April 2025</div>
+          <div class="calendar-weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+          </div>
+          <div class="calendar-days">
+            <!-- Row 1 -->
+            <div class="calendar-day other-month">30</div>
+            <div class="calendar-day other-month">31</div>
+            <div class="calendar-day has-event">1</div>
+            <div class="calendar-day">2</div>
+            <div class="calendar-day">3</div>
+            <div class="calendar-day">4</div>
+            <div class="calendar-day has-event">5</div>
+            
+            <!-- Row 2 -->
+            <div class="calendar-day">6</div>
+            <div class="calendar-day">7</div>
+            <div class="calendar-day">8</div>
+            <div class="calendar-day">9</div>
+            <div class="calendar-day">10</div>
+            <div class="calendar-day">11</div>
+            <div class="calendar-day">12</div>
+            
+            <!-- Row 3 -->
+            <div class="calendar-day">13</div>
+            <div class="calendar-day">14</div>
+            <div class="calendar-day has-event">15</div>
+            <div class="calendar-day">16</div>
+            <div class="calendar-day">17</div>
+            <div class="calendar-day has-event">18</div>
+            <div class="calendar-day">19</div>
+            
+            <!-- Row 4 -->
+            <div class="calendar-day">20</div>
+            <div class="calendar-day">21</div>
+            <div class="calendar-day has-event">22</div>
+            <div class="calendar-day">23</div>
+            <div class="calendar-day">24</div>
+            <div class="calendar-day">25</div>
+            <div class="calendar-day">26</div>
+            
+            <!-- Row 5 -->
+            <div class="calendar-day">27</div>
+            <div class="calendar-day">28</div>
+            <div class="calendar-day">29</div>
+            <div class="calendar-day">30</div>
+            <div class="calendar-day other-month">1</div>
+            <div class="calendar-day other-month">2</div>
+            <div class="calendar-day other-month">3</div>
+          </div>
+          <div class="mt-3 small text-muted">
+            <i class="bi bi-circle-fill text-success me-1" style="font-size: 0.5rem;"></i> Days with subscription payments
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <!-- Monthly Cost Summary -->
+      <div class="summary-card card">
+        <h5>Monthly Cost Summary</h5>
+        <div class="summary-item">
+          <span>Entertainment</span>
+          <span class="text-danger">$25.98</span>
+        </div>
+        <div class="summary-item">
+          <span>Software</span>
+          <span class="text-danger">$52.99</span>
+        </div>
+        <div class="summary-item">
+          <span>Health</span>
+          <span class="text-danger">$45.00</span>
+        </div>
+        <div class="summary-item">
+          <span>Utilities</span>
+          <span class="text-danger">$2.99</span>
+        </div>
+        <div class="summary-item">
+          <span>Shopping</span>
+          <span class="text-danger">$11.58</span>
+        </div>
+        <div class="summary-total">
+          <div class="d-flex justify-content-between">
+            <span>Total Monthly</span>
+            <span class="text-danger">$138.54</span>
+          </div>
+        </div>
+        <div class="mt-3 small text-muted">
+          <i class="bi bi-info-circle me-1"></i> Annual subscriptions are prorated to monthly cost
+        </div>
+      </div>
+      
+      <!-- Upcoming Payments -->
+      <div class="summary-card card">
+        <h5>Upcoming Payments</h5>
+        <div class="summary-item">
+          <div>
+            <div class="fw-bold">Gym Membership</div>
+            <div class="small text-muted">Apr 1, 2025</div>
+          </div>
+          <span class="text-danger">$45.00</span>
+        </div>
+        <div class="summary-item">
+          <div>
+            <div class="fw-bold">Adobe Creative Cloud</div>
+            <div class="small text-muted">Apr 5, 2025</div>
+          </div>
+          <span class="text-danger">$52.99</span>
+        </div>
+        <div class="summary-item">
+          <div>
+            <div class="fw-bold">Netflix</div>
+            <div class="small text-muted">Apr 15, 2025</div>
+          </div>
+          <span class="text-danger">$15.99</span>
+        </div>
+        <div class="summary-item">
+          <div>
+            <div class="fw-bold">iCloud Storage</div>
+            <div class="small text-muted">Apr 18, 2025</div>
+          </div>
+          <span class="text-danger">$2.99</span>
+        </div>
+        <div class="summary-item">
+          <div>
+            <div class="fw-bold">Spotify</div>
+            <div class="small text-muted">Apr 22, 2025</div>
+          </div>
+          <span class="text-danger">$9.99</span>
+        </div>
+      </div>
+      
+      <!-- Optimization Suggestions -->
+      <div class="summary-card card">
+        <h5>Optimization Suggestions</h5>
+        <div class="mb-3">
+          <div class="d-flex align-items-start mb-2">
+            <i class="bi bi-lightbulb-fill text-warning me-2 mt-1"></i>
+            <div>
+              <div class="fw-bold">Switch to Annual Plans</div>
+              <p class="mb-0 small">Save $24 by switching Netflix to an annual plan.</p>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="d-flex align-items-start mb-2">
+            <i class="bi bi-lightbulb-fill text-warning me-2 mt-1"></i>
+            <div>
+              <div class="fw-bold">Bundle Services</div>
+              <p class="mb-0 small">Consider the Spotify + Hulu bundle to save $5/month.</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="d-flex align-items-start">
+            <i class="bi bi-lightbulb-fill text-warning me-2 mt-1"></i>
+            <div>
+              <div class="fw-bold">Unused Subscriptions</div>
+              <p class="mb-0 small">You haven't used Adobe CC in 45 days. Consider pausing.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add subscription functionality
+    const addButton = document.querySelector('.btn-primary');
+    addButton.addEventListener('click', function() {
+      // In a real application, this would open a modal to add a subscription
+      // For now, we'll just show an alert
+      alert('Add subscription functionality would be implemented here.');
+    });
+    
+    // Edit subscription functionality
+    const editButtons = document.querySelectorAll('.btn-outline-secondary');
+    editButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // In a real application, this would open a modal to edit the subscription
+        // For now, we'll just show an alert
+        alert('Edit subscription functionality would be implemented here.');
+      });
+    });
+    
+    // Delete subscription functionality
+    const deleteButtons = document.querySelectorAll('.btn-outline-danger');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // In a real application, this would open a confirmation dialog
+        // For now, we'll just show an alert
+        alert('Delete subscription functionality would be implemented here.');
+      });
+    });
+    
+    // Calendar navigation
+    const calendarButtons = document.querySelectorAll('.calendar-header .btn-outline-secondary');
+    calendarButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // In a real application, this would navigate to the previous/next month
+        // For now, we'll just show an alert
+        alert('Calendar navigation functionality would be implemented here.');
+      });
+    });
+  });
+</script>
+{% endblock %}

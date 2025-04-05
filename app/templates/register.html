@@ -1,0 +1,134 @@
+{# 
+  register.html - Registration Page Template for Muzzy Tracker
+  
+  This template extends the base.html template and provides the registration page content.
+  It includes a form to collect user information:
+  1. First name
+  2. Last name
+  3. Email address
+  4. Phone number
+  5. Password and confirmation
+  
+  The page serves as the account creation portal for new users.
+#}
+
+{% extends "base.html" %}
+
+{# Custom page title that overrides the default from base.html #}
+{% block title %}Muzzy Tracker - Create Account{% endblock %}
+
+{% block content %}
+{# 
+  Registration Section
+  - Contains the registration form for new user account creation
+  - Includes fields for first name, last name, email, phone, and password
+  - Form submits to the /register route via POST method
+#}
+<section class="register-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            {# Center the registration card and make it half-width on large screens #}
+            <div class="col-lg-6">
+                <div class="card register-card">
+                    <div class="card-body p-5">
+                        {# Registration form title #}
+                        <h2 class="card-title text-center mb-4">Create Your Account</h2>
+                        
+                        {# Registration form - submits to the register route via POST #}
+                        <form method="post" action="{{ url_for('register') }}">
+                            {# First name field #}
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required 
+                                       autocomplete="given-name">
+                            </div>
+                            
+                            {# Last name field #}
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required 
+                                       autocomplete="family-name">
+                            </div>
+                            
+                            {# Email field - uses HTML5 email validation #}
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="email" name="email" required 
+                                       aria-describedby="emailHelp" autocomplete="email">
+                                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                            </div>
+                            
+                            {# Phone number field #}
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required 
+                                       autocomplete="tel" placeholder="(123) 456-7890">
+                            </div>
+                            
+                            {# Password field #}
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                       autocomplete="new-password">
+                                <div class="form-text">Password must be at least 8 characters long and include a mix of letters, numbers, and symbols.</div>
+                            </div>
+                            
+                            {# Confirm password field #}
+                            <div class="mb-3">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required
+                                       autocomplete="new-password">
+                            </div>
+                            
+                            {# Terms and conditions checkbox #}
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="{{ url_for('terms') }}" target="_blank">Terms of Service</a> and <a href="{{ url_for('privacy') }}" target="_blank">Privacy Policy</a>
+                                </label>
+                            </div>
+                            
+                            {# Submit button - full-width using d-grid #}
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+                            </div>
+                        </form>
+                        
+                        {# Divider between registration and login option #}
+                        <hr class="my-4">
+                        
+                        {# Login option for existing users #}
+                        <div class="text-center">
+                            <p>Already have an account?</p>
+                            <a href="{{ url_for('index') }}#login" class="btn btn-outline-secondary">Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# Add some custom CSS for the registration page #}
+{% block extra_css %}
+<style>
+    .register-section {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        background-color: var(--light-bg);
+    }
+    
+    .register-card {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: none;
+    }
+    
+    .card-title {
+        color: var(--primary-green);
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+{% endblock %}

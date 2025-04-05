@@ -1,0 +1,488 @@
+{# 
+  zakat.html - Zakat Calculator Template for Muzzy Tracker
+  
+  This template extends the base.html template and provides the Zakat calculator interface.
+  It includes:
+  1. Explanation of Zakat principles
+  2. Form for entering different types of assets
+  3. Calculation of 2.5% on eligible wealth
+  4. Recommendations for Zakat distribution
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Zakat Calculator{% endblock %}
+
+{% block extra_css %}
+<style>
+  .zakat-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    height: 100%;
+    margin-bottom: 1.5rem;
+  }
+  
+  .zakat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-header-custom {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+    color: var(--primary-green);
+  }
+  
+  .info-box {
+    background-color: #f8f9fa;
+    border-left: 4px solid var(--primary-green);
+    padding: 1rem;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .zakat-result {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-green);
+  }
+  
+  .asset-category {
+    background-color: rgba(11, 110, 79, 0.05);
+    border-radius: 5px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .asset-category h5 {
+    color: var(--primary-green);
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .form-label {
+    font-weight: 500;
+  }
+  
+  .form-text {
+    font-size: 0.8rem;
+  }
+  
+  .nisab-info {
+    font-style: italic;
+    color: #6c757d;
+  }
+  
+  .distribution-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .distribution-item:last-child {
+    border-bottom: none;
+  }
+  
+  .distribution-item h5 {
+    font-size: 1rem;
+    color: var(--primary-green);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="mb-4">Zakat Calculator</h1>
+      
+      <!-- Zakat Information -->
+      <div class="info-box mb-4">
+        <div class="d-flex align-items-start">
+          <i class="bi bi-info-circle me-2 mt-1"></i>
+          <div>
+            <p class="mb-1"><strong>What is Zakat?</strong> Zakat is one of the five pillars of Islam, requiring Muslims to give 2.5% of their eligible wealth to those in need.</p>
+            <p class="mb-0 small">This calculator helps you determine your Zakat obligation based on your financial assets. For specific religious guidance, please consult with a qualified scholar.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <!-- Zakat Calculator Form -->
+        <div class="col-lg-8">
+          <div class="zakat-card card">
+            <div class="card-header card-header-custom">
+              <h2 class="h5 mb-0">Calculate Your Zakat</h2>
+            </div>
+            <div class="card-body">
+              <form id="zakatForm">
+                <!-- Nisab Information -->
+                <div class="mb-4">
+                  <h5>Nisab Threshold</h5>
+                  <p class="small mb-1">Zakat is due when your wealth exceeds the nisab threshold, which is approximately:</p>
+                  <ul class="small mb-3">
+                    <li>Gold Nisab: 87.48 grams of gold (approximately $5,500 USD)</li>
+                    <li>Silver Nisab: 612.36 grams of silver (approximately $500 USD)</li>
+                  </ul>
+                  <p class="small nisab-info">The calculator will automatically determine if your wealth exceeds the nisab threshold.</p>
+                </div>
+                
+                <!-- Cash and Bank Accounts -->
+                <div class="asset-category">
+                  <h5><i class="bi bi-cash me-2"></i>Cash & Bank Accounts</h5>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="checkingAccounts" class="form-label">Checking Accounts</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="checkingAccounts" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="savingsAccounts" class="form-label">Savings Accounts</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="savingsAccounts" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="cashOnHand" class="form-label">Cash on Hand</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="cashOnHand" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="foreignCurrency" class="form-label">Foreign Currency (USD equivalent)</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="foreignCurrency" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Gold and Silver -->
+                <div class="asset-category">
+                  <h5><i class="bi bi-gem me-2"></i>Gold & Silver</h5>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="goldValue" class="form-label">Gold Value</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="goldValue" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                      <div class="form-text">Enter the current market value of your gold.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="silverValue" class="form-label">Silver Value</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="silverValue" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                      <div class="form-text">Enter the current market value of your silver.</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Investments -->
+                <div class="asset-category">
+                  <h5><i class="bi bi-graph-up me-2"></i>Investments</h5>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="stocks" class="form-label">Stocks & Shares</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="stocks" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="mutualFunds" class="form-label">Mutual Funds</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="mutualFunds" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="bonds" class="form-label">Bonds & Sukuk</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="bonds" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="cryptoCurrency" class="form-label">Cryptocurrency</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="cryptoCurrency" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Business Assets -->
+                <div class="asset-category">
+                  <h5><i class="bi bi-briefcase me-2"></i>Business Assets</h5>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="businessCash" class="form-label">Business Cash & Bank Accounts</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="businessCash" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="inventory" class="form-label">Inventory Value</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="inventory" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="accountsReceivable" class="form-label">Accounts Receivable</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="accountsReceivable" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Other Assets -->
+                <div class="asset-category">
+                  <h5><i class="bi bi-collection me-2"></i>Other Assets</h5>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="loansGiven" class="form-label">Loans Given to Others</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="loansGiven" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="otherAssets" class="form-label">Other Zakatable Assets</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="otherAssets" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Liabilities (Deductions) -->
+                <div class="asset-category">
+                  <h5><i class="bi bi-dash-circle me-2"></i>Liabilities (Deductions)</h5>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="shortTermDebts" class="form-label">Short-term Debts Due</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="shortTermDebts" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                      <div class="form-text">Debts that are due within the next lunar year.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="businessLiabilities" class="form-label">Business Liabilities</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control" id="businessLiabilities" placeholder="0.00" min="0" step="0.01">
+                      </div>
+                      <div class="form-text">Short-term business debts and expenses.</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="d-grid gap-2 mt-4">
+                  <button type="button" class="btn btn-primary" id="calculateZakat">Calculate Zakat</button>
+                  <button type="reset" class="btn btn-outline-secondary">Reset Form</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Zakat Results and Information -->
+        <div class="col-lg-4">
+          <!-- Zakat Results -->
+          <div class="zakat-card card mb-4">
+            <div class="card-header card-header-custom">
+              <h2 class="h5 mb-0">Your Zakat Calculation</h2>
+            </div>
+            <div class="card-body">
+              <div id="zakatResults" class="text-center py-4">
+                <p class="mb-1">Total Zakatable Wealth</p>
+                <div class="zakat-result mb-2" id="totalWealth">$0.00</div>
+                <p class="mb-1">Zakat Due (2.5%)</p>
+                <div class="zakat-result" id="zakatAmount">$0.00</div>
+                <div class="mt-3" id="nisabStatus">
+                  <span class="badge bg-secondary">Below Nisab Threshold</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Zakat Distribution -->
+          <div class="zakat-card card">
+            <div class="card-header card-header-custom">
+              <h2 class="h5 mb-0">Zakat Distribution</h2>
+            </div>
+            <div class="card-body">
+              <p class="small mb-3">According to the Quran (9:60), Zakat can be distributed to the following categories of people:</p>
+              
+              <div class="distribution-item">
+                <h5>1. The Poor (Al-Fuqara)</h5>
+                <p class="small mb-0">Those who lack the means to meet their basic needs.</p>
+              </div>
+              
+              <div class="distribution-item">
+                <h5>2. The Needy (Al-Masakin)</h5>
+                <p class="small mb-0">Those who have some means but not enough to meet their basic needs.</p>
+              </div>
+              
+              <div class="distribution-item">
+                <h5>3. Zakat Administrators</h5>
+                <p class="small mb-0">Those who collect and distribute Zakat.</p>
+              </div>
+              
+              <div class="distribution-item">
+                <h5>4. Those Whose Hearts Are to be Reconciled</h5>
+                <p class="small mb-0">Those who are inclined toward Islam or newly converted.</p>
+              </div>
+              
+              <div class="distribution-item">
+                <h5>5. To Free Captives</h5>
+                <p class="small mb-0">To free those in bondage or captivity.</p>
+              </div>
+              
+              <div class="distribution-item">
+                <h5>6. Those in Debt</h5>
+                <p class="small mb-0">Those who are in debt and cannot repay from their own means.</p>
+              </div>
+              
+              <div class="distribution-item">
+                <h5>7. In the Cause of Allah</h5>
+                <p class="small mb-0">For causes that benefit the Muslim community.</p>
+              </div>
+              
+              <div class="distribution-item">
+                <h5>8. The Wayfarer</h5>
+                <p class="small mb-0">Travelers who are stranded and in need of assistance.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Constants
+    const ZAKAT_RATE = 0.025; // 2.5%
+    const NISAB_THRESHOLD = 5500; // Gold nisab in USD (approximate)
+    
+    // DOM Elements
+    const calculateBtn = document.getElementById('calculateZakat');
+    const totalWealthElement = document.getElementById('totalWealth');
+    const zakatAmountElement = document.getElementById('zakatAmount');
+    const nisabStatusElement = document.getElementById('nisabStatus');
+    
+    // Calculate Zakat
+    calculateBtn.addEventListener('click', function() {
+      // Get all input values
+      const values = {
+        // Cash & Bank Accounts
+        checkingAccounts: getInputValue('checkingAccounts'),
+        savingsAccounts: getInputValue('savingsAccounts'),
+        cashOnHand: getInputValue('cashOnHand'),
+        foreignCurrency: getInputValue('foreignCurrency'),
+        
+        // Gold & Silver
+        goldValue: getInputValue('goldValue'),
+        silverValue: getInputValue('silverValue'),
+        
+        // Investments
+        stocks: getInputValue('stocks'),
+        mutualFunds: getInputValue('mutualFunds'),
+        bonds: getInputValue('bonds'),
+        cryptoCurrency: getInputValue('cryptoCurrency'),
+        
+        // Business Assets
+        businessCash: getInputValue('businessCash'),
+        inventory: getInputValue('inventory'),
+        accountsReceivable: getInputValue('accountsReceivable'),
+        
+        // Other Assets
+        loansGiven: getInputValue('loansGiven'),
+        otherAssets: getInputValue('otherAssets'),
+        
+        // Liabilities
+        shortTermDebts: getInputValue('shortTermDebts'),
+        businessLiabilities: getInputValue('businessLiabilities')
+      };
+      
+      // Calculate total assets
+      const totalAssets = 
+        values.checkingAccounts + 
+        values.savingsAccounts + 
+        values.cashOnHand + 
+        values.foreignCurrency +
+        values.goldValue + 
+        values.silverValue +
+        values.stocks + 
+        values.mutualFunds + 
+        values.bonds + 
+        values.cryptoCurrency +
+        values.businessCash + 
+        values.inventory + 
+        values.accountsReceivable +
+        values.loansGiven + 
+        values.otherAssets;
+      
+      // Calculate total liabilities
+      const totalLiabilities = values.shortTermDebts + values.businessLiabilities;
+      
+      // Calculate net zakatable wealth
+      const netWealth = totalAssets - totalLiabilities;
+      
+      // Check if wealth exceeds nisab threshold
+      const exceedsNisab = netWealth >= NISAB_THRESHOLD;
+      
+      // Calculate zakat amount (if applicable)
+      const zakatAmount = exceedsNisab ? netWealth * ZAKAT_RATE : 0;
+      
+      // Update the UI
+      totalWealthElement.textContent = formatCurrency(netWealth);
+      zakatAmountElement.textContent = formatCurrency(zakatAmount);
+      
+      // Update nisab status
+      if (exceedsNisab) {
+        nisabStatusElement.innerHTML = '<span class="badge bg-success">Above Nisab Threshold</span>';
+      } else {
+        nisabStatusElement.innerHTML = '<span class="badge bg-secondary">Below Nisab Threshold</span>';
+      }
+      
+      // Scroll to results on mobile
+      if (window.innerWidth < 992) {
+        document.getElementById('zakatResults').scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+    
+    // Helper function to get input value as number
+    function getInputValue(id) {
+      const value = parseFloat(document.getElementById(id).value);
+      return isNaN(value) ? 0 : value;
+    }
+    
+    // Helper function to format currency
+    function formatCurrency(amount) {
+      return '$' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+  });
+</script>
+{% endblock %}

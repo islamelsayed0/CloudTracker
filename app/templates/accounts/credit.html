@@ -1,0 +1,1104 @@
+{# 
+  credit.html - Credit Cards Page for Muzzy Tracker
+  
+  This template extends the base.html template and provides the credit cards interface.
+  It includes:
+  1. List of all credit cards with current balances and limits
+  2. Credit utilization visualization
+  3. Payment information and due dates
+  4. Interest calculations and payoff projections
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Credit Cards{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Credit cards page specific styles */
+  .page-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+  }
+  
+  .card-account {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transition: all 0.3s;
+    margin-bottom: 2rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .card-account:hover {
+    box-shadow: 0 8px 15px var(--shadow-color);
+  }
+  
+  .card-account .card-header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--primary-green);
+  }
+  
+  .card-item {
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.2s;
+  }
+  
+  .card-item:last-child {
+    border-bottom: none;
+  }
+  
+  .card-item:hover {
+    background-color: rgba(11, 110, 79, 0.05);
+  }
+  
+  .card-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .card-details {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  
+  .card-balance {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #dc3545;
+  }
+  
+  .card-limit {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  
+  .card-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  
+  .icon-chase { background-color: #117ACA; }
+  .icon-amex { background-color: #006FCF; }
+  .icon-discover { background-color: #FF6000; }
+  .icon-citi { background-color: #0088CE; }
+  .icon-other { background-color: #6C757D; }
+  
+  .summary-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .summary-card h5 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-green);
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-dark);
+  }
+  
+  .summary-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .summary-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--border-color);
+    color: var(--text-dark);
+  }
+  
+  .card-transactions {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .transaction-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .transaction-item:last-child {
+    border-bottom: none;
+  }
+  
+  .transaction-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  
+  .transaction-description {
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+  
+  .transaction-amount {
+    font-weight: 600;
+    color: #dc3545;
+  }
+  
+  .card-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-item {
+    flex: 1;
+    background-color: var(--sidebar-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    margin-bottom: 0.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  
+  .utilization-chart {
+    height: 250px;
+    margin-bottom: 1rem;
+  }
+  
+  .payment-info {
+    background-color: var(--sidebar-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .payment-due {
+    font-weight: 700;
+    color: #dc3545;
+  }
+  
+  .payment-date {
+    font-weight: 700;
+  }
+  
+  .payment-date.soon {
+    color: #dc3545;
+  }
+  
+  .payment-date.upcoming {
+    color: #fd7e14;
+  }
+  
+  .payment-date.far {
+    color: var(--primary-green);
+  }
+  
+  .payoff-calculator {
+    background-color: var(--sidebar-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h1 class="mb-0">Credit Cards</h1>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <button class="btn btn-primary" id="addCreditCard">
+          <i class="bi bi-plus"></i> Add Credit Card
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-lg-8">
+      <!-- Credit Cards List -->
+      <div class="card-account card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>All Credit Cards</div>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#" id="sortByName">Sort by Name</a></li>
+              <li><a class="dropdown-item" href="#" id="sortByBalance">Sort by Balance</a></li>
+              <li><a class="dropdown-item" href="#" id="sortByDueDate">Sort by Due Date</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" id="showInactive">Show Inactive Cards</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <!-- Card Item 1 -->
+          <div class="card-item" data-bs-toggle="collapse" data-bs-target="#cardDetails1">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="card-icon icon-chase">
+                    <i class="bi bi-credit-card"></i>
+                  </div>
+                  <div>
+                    <div class="card-name">Chase Sapphire Preferred</div>
+                    <div class="card-details">
+                      <span>Chase Bank</span>
+                      <span class="ms-2">•••• 4567</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="card-balance">$2,450.75</div>
+                <div class="card-limit">$10,000 Limit (25% Used)</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="card-actions">
+                  <button class="btn btn-sm btn-outline-secondary edit-card">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-card">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary toggle-details">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card Details 1 -->
+          <div class="collapse" id="cardDetails1">
+            <div class="p-3 bg-light">
+              <div class="payment-info mb-3">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="text-muted mb-1">Minimum Payment</div>
+                    <div class="payment-due">$75.00</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted mb-1">Due Date</div>
+                    <div class="payment-date soon">April 15, 2025</div>
+                    <div class="small text-danger">Due in 10 days</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted mb-1">Last Payment</div>
+                    <div>$100.00</div>
+                    <div class="small text-muted">March 15, 2025</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card-stats">
+                <div class="stat-item">
+                  <div class="stat-value">24.5%</div>
+                  <div class="stat-label">Utilization</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">18.99%</div>
+                  <div class="stat-label">APR</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$450</div>
+                  <div class="stat-label">Monthly Avg.</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$75</div>
+                  <div class="stat-label">Min. Payment</div>
+                </div>
+              </div>
+              
+              <div class="utilization-chart">
+                <canvas id="utilizationChart1"></canvas>
+              </div>
+              
+              <h6 class="mb-3">Recent Transactions</h6>
+              <div class="card-transactions">
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Amazon.com</div>
+                      <div class="transaction-date">Apr 2, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$129.99</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Whole Foods Market</div>
+                      <div class="transaction-date">Apr 1, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$87.45</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Netflix Subscription</div>
+                      <div class="transaction-date">Mar 28, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$15.99</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Starbucks</div>
+                      <div class="transaction-date">Mar 25, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$5.45</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Target</div>
+                      <div class="transaction-date">Mar 22, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$65.32</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="payoff-calculator mt-3">
+                <h6>Payoff Calculator</h6>
+                <div class="row g-2 mb-3">
+                  <div class="col-md-6">
+                    <label for="paymentAmount1" class="form-label">Monthly Payment</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input type="number" class="form-control" id="paymentAmount1" value="200">
+                    </div>
+                  </div>
+                  <div class="col-md-6 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="calculatePayoff1">Calculate</button>
+                  </div>
+                </div>
+                <div class="payoff-result">
+                  <div class="alert alert-info mb-0">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>Payoff Time:</span>
+                      <strong>14 months</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>Total Interest:</span>
+                      <strong>$389.25</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span>Total Payment:</span>
+                      <strong>$2,840.00</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid mt-3">
+                <a href="{{ url_for('transactions') }}" class="btn btn-outline-primary btn-sm">
+                  View All Transactions
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card Item 2 -->
+          <div class="card-item" data-bs-toggle="collapse" data-bs-target="#cardDetails2">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="card-icon icon-amex">
+                    <i class="bi bi-credit-card"></i>
+                  </div>
+                  <div>
+                    <div class="card-name">American Express Gold</div>
+                    <div class="card-details">
+                      <span>American Express</span>
+                      <span class="ms-2">•••• 7890</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="card-balance">$1,875.50</div>
+                <div class="card-limit">$15,000 Limit (13% Used)</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="card-actions">
+                  <button class="btn btn-sm btn-outline-secondary edit-card">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-card">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary toggle-details">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card Details 2 -->
+          <div class="collapse" id="cardDetails2">
+            <div class="p-3 bg-light">
+              <div class="payment-info mb-3">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="text-muted mb-1">Minimum Payment</div>
+                    <div class="payment-due">$50.00</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted mb-1">Due Date</div>
+                    <div class="payment-date upcoming">April 22, 2025</div>
+                    <div class="small text-warning">Due in 17 days</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted mb-1">Last Payment</div>
+                    <div>$200.00</div>
+                    <div class="small text-muted">March 22, 2025</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card-stats">
+                <div class="stat-item">
+                  <div class="stat-value">12.5%</div>
+                  <div class="stat-label">Utilization</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">16.99%</div>
+                  <div class="stat-label">APR</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$350</div>
+                  <div class="stat-label">Monthly Avg.</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$50</div>
+                  <div class="stat-label">Min. Payment</div>
+                </div>
+              </div>
+              
+              <div class="utilization-chart">
+                <canvas id="utilizationChart2"></canvas>
+              </div>
+              
+              <h6 class="mb-3">Recent Transactions</h6>
+              <div class="card-transactions">
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Delta Airlines</div>
+                      <div class="transaction-date">Apr 3, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$450.00</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Cheesecake Factory</div>
+                      <div class="transaction-date">Apr 1, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$85.75</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Uber</div>
+                      <div class="transaction-date">Mar 30, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$24.50</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Spotify Premium</div>
+                      <div class="transaction-date">Mar 28, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$9.99</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="payoff-calculator mt-3">
+                <h6>Payoff Calculator</h6>
+                <div class="row g-2 mb-3">
+                  <div class="col-md-6">
+                    <label for="paymentAmount2" class="form-label">Monthly Payment</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input type="number" class="form-control" id="paymentAmount2" value="300">
+                    </div>
+                  </div>
+                  <div class="col-md-6 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="calculatePayoff2">Calculate</button>
+                  </div>
+                </div>
+                <div class="payoff-result">
+                  <div class="alert alert-info mb-0">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>Payoff Time:</span>
+                      <strong>7 months</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>Total Interest:</span>
+                      <strong>$124.50</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span>Total Payment:</span>
+                      <strong>$2,000.00</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid mt-3">
+                <a href="{{ url_for('transactions') }}" class="btn btn-outline-primary btn-sm">
+                  View All Transactions
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card Item 3 -->
+          <div class="card-item" data-bs-toggle="collapse" data-bs-target="#cardDetails3">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="card-icon icon-discover">
+                    <i class="bi bi-credit-card"></i>
+                  </div>
+                  <div>
+                    <div class="card-name">Discover It Cash Back</div>
+                    <div class="card-details">
+                      <span>Discover</span>
+                      <span class="ms-2">•••• 1234</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="card-balance">$750.25</div>
+                <div class="card-limit">$8,000 Limit (9% Used)</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="card-actions">
+                  <button class="btn btn-sm btn-outline-secondary edit-card">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-card">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary toggle-details">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card Details 3 -->
+          <div class="collapse" id="cardDetails3">
+            <div class="p-3 bg-light">
+              <div class="payment-info mb-3">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="text-muted mb-1">Minimum Payment</div>
+                    <div class="payment-due">$25.00</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted mb-1">Due Date</div>
+                    <div class="payment-date far">May 5, 2025</div>
+                    <div class="small text-success">Due in 30 days</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted mb-1">Last Payment</div>
+                    <div>$100.00</div>
+                    <div class="small text-muted">March 5, 2025</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card-stats">
+                <div class="stat-item">
+                  <div class="stat-value">9.4%</div>
+                  <div class="stat-label">Utilization</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">14.99%</div>
+                  <div class="stat-label">APR</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$250</div>
+                  <div class="stat-label">Monthly Avg.</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$25</div>
+                  <div class="stat-label">Min. Payment</div>
+                </div>
+              </div>
+              
+              <div class="utilization-chart">
+                <canvas id="utilizationChart3"></canvas>
+              </div>
+              
+              <h6 class="mb-3">Recent Transactions</h6>
+              <div class="card-transactions">
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Gas Station</div>
+                      <div class="transaction-date">Apr 4, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$45.75</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Walmart</div>
+                      <div class="transaction-date">Apr 2, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$87.32</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">CVS Pharmacy</div>
+                      <div class="transaction-date">Mar 30, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$32.45</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Chipotle</div>
+                      <div class="transaction-date">Mar 28, 2025</div>
+                    </div>
+                    <div class="transaction-amount">$15.75</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="payoff-calculator mt-3">
+                <h6>Payoff Calculator</h6>
+                <div class="row g-2 mb-3">
+                  <div class="col-md-6">
+                    <label for="paymentAmount3" class="form-label">Monthly Payment</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input type="number" class="form-control" id="paymentAmount3" value="150">
+                    </div>
+                  </div>
+                  <div class="col-md-6 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="calculatePayoff3">Calculate</button>
+                  </div>
+                </div>
+                <div class="payoff-result">
+                  <div class="alert alert-info mb-0">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>Payoff Time:</span>
+                      <strong>6 months</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span>Total Interest:</span>
+                      <strong>$37.50</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span>Total Payment:</span>
+                      <strong>$787.75</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid mt-3">
+                <a href="{{ url_for('transactions') }}" class="btn btn-outline-primary btn-sm">
+                  View All Transactions
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <!-- Credit Card Summary -->
+      <div class="summary-card card">
+        <h5>Credit Card Summary</h5>
+        <div class="summary-item">
+          <span>Chase Sapphire Preferred</span>
+          <span class="text-danger">$2,450.75</span>
+        </div>
+        <div class="summary-item">
+          <span>American Express Gold</span>
+          <span class="text-danger">$1,875.50</span>
+        </div>
+        <div class="summary-item">
+          <span>Discover It Cash Back</span>
+          <span class="text-danger">$750.25</span>
+        </div>
+        <div class="summary-total">
+          <div class="d-flex justify-content-between">
+            <span>Total Credit Card Debt</span>
+            <span class="text-danger">$5,076.50</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Credit Utilization -->
+      <div class="summary-card card">
+        <h5>Credit Utilization</h5>
+        <div style="height: 250px;">
+          <canvas id="creditUtilizationChart"></canvas>
+        </div>
+        <div class="mt-3 small text-muted">
+          <i class="bi bi-info-circle me-1"></i> Credit utilization is the percentage of your available credit that you're using. Keeping it under 30% is generally recommended for a good credit score.
+        </div>
+      </div>
+      
+      <!-- Upcoming Payments -->
+      <div class="summary-card card">
+        <h5>Upcoming Payments</h5>
+        <div class="summary-item">
+          <span>Chase Sapphire Preferred</span>
+          <div class="text-end">
+            <div class="text-danger">$75.00</div>
+            <div class="small text-danger">Due Apr 15</div>
+          </div>
+        </div>
+        <div class="summary-item">
+          <span>American Express Gold</span>
+          <div class="text-end">
+            <div class="text-danger">$50.00</div>
+            <div class="small text-warning">Due Apr 22</div>
+          </div>
+        </div>
+        <div class="summary-item">
+          <span>Discover It Cash Back</span>
+          <div class="text-end">
+            <div class="text-danger">$25.00</div>
+            <div class="small text-success">Due May 5</div>
+          </div>
+        </div>
+        <div class="d-grid mt-3">
+          <button class="btn btn-outline-primary btn-sm" id="schedulePayments">
+            <i class="bi bi-calendar-check"></i> Schedule Payments
+          </button>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="summary-card card">
+        <h5>Quick Actions</h5>
+        <div class="d-grid gap-2">
+          <button class="btn btn-outline-primary btn-sm" id="addNewCard">
+            <i class="bi bi-plus-circle"></i> Add Credit Card
+          </button>
+          <button class="btn btn-outline-primary btn-sm" id="payoffStrategy">
+            <i class="bi bi-graph-down"></i> Debt Payoff Strategy
+          </button>
+          <button class="btn btn-outline-primary btn-sm" id="downloadStatements">
+            <i class="bi bi-file-earmark-text"></i> Download Statements
+          </button>
+          <button class="btn btn-outline-primary btn-sm" id="creditScoreCheck">
+            <i class="bi bi-shield-check"></i> Check Credit Score
+          </button>
+        </div>
+      </div>
+      
+      <!-- Tips -->
+      <div class="card bg-light border-0 p-3">
+        <div class="card-body">
+          <h6 class="card-title"><i class="bi bi-lightbulb text-warning me-2"></i>Credit Card Tips</h6>
+          <p class="card-text small">Consider using the debt snowball method (paying off smallest balances first) or the debt avalanche method (paying off highest interest rates first) to eliminate credit card debt.</p>
+          <p class="card-text small mb-0">Making more than the minimum payment can significantly reduce the time it takes to pay off your credit cards and save you money on interest.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Credit Utilization Chart
+    const utilizationCtx = document.getElementById('creditUtilizationChart');
+    if (utilizationCtx) {
+      new Chart(utilizationCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Used Credit', 'Available Credit'],
+          datasets: [{
+            data: [5076.50, 27923.50],
+            backgroundColor: ['#dc3545', '#198754'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: $${value.toLocaleString()} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Individual Card Utilization Charts
+    const utilizationOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.label}: ${context.raw}%`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: function(value) {
+              return value + '%';
+            }
+          }
+        }
+      }
+    };
+    
+    // Utilization Chart 1
+    const utilizationCtx1 = document.getElementById('utilizationChart1');
+    if (utilizationCtx1) {
+      new Chart(utilizationCtx1, {
+        type: 'bar',
+        data: {
+          labels: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+          datasets: [{
+            label: 'Utilization',
+            data: [15, 20, 18, 22, 25, 24.5],
+            backgroundColor: function(context) {
+              const value = context.dataset.data[context.dataIndex];
+              return value > 30 ? '#dc3545' : '#198754';
+            }
+          }]
+        },
+        options: utilizationOptions
+      });
+    }
+    
+    // Utilization Chart 2
+    const utilizationCtx2 = document.getElementById('utilizationChart2');
+    if (utilizationCtx2) {
+      new Chart(utilizationCtx2, {
+        type: 'bar',
+        data: {
+          labels: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+          datasets: [{
+            label: 'Utilization',
+            data: [8, 10, 15, 12, 14, 12.5],
+            backgroundColor: function(context) {
+              const value = context.dataset.data[context.dataIndex];
+              return value > 30 ? '#dc3545' : '#198754';
+            }
+          }]
+        },
+        options: utilizationOptions
+      });
+    }
+    
+    // Utilization Chart 3
+    const utilizationCtx3 = document.getElementById('utilizationChart3');
+    if (utilizationCtx3) {
+      new Chart(utilizationCtx3, {
+        type: 'bar',
+        data: {
+          labels: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+          datasets: [{
+            label: 'Utilization',
+            data: [5, 8, 12, 10, 7, 9.4],
+            backgroundColor: function(context) {
+              const value = context.dataset.data[context.dataIndex];
+              return value > 30 ? '#dc3545' : '#198754';
+            }
+          }]
+        },
+        options: utilizationOptions
+      });
+    }
+    
+    // Toggle card details
+    const cardItems = document.querySelectorAll('.card-item');
+    cardItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const detailsButton = this.querySelector('.card-actions .toggle-details i');
+        if (detailsButton.classList.contains('bi-chevron-down')) {
+          detailsButton.classList.remove('bi-chevron-down');
+          detailsButton.classList.add('bi-chevron-up');
+        } else {
+          detailsButton.classList.remove('bi-chevron-up');
+          detailsButton.classList.add('bi-chevron-down');
+        }
+      });
+    });
+    
+    // Add credit card functionality
+    const addButtons = document.querySelectorAll('#addCreditCard, #addNewCard');
+    addButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // In a real application, this would open a modal to add a credit card
+        alert('Add credit card functionality would be implemented here.');
+      });
+    });
+    
+    // Edit card functionality
+    const editButtons = document.querySelectorAll('.edit-card');
+    editButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // In a real application, this would open a modal to edit the card
+        alert('Edit credit card functionality would be implemented here.');
+      });
+    });
+    
+    // Delete card functionality
+    const deleteButtons = document.querySelectorAll('.delete-card');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // In a real application, this would open a confirmation dialog
+        alert('Delete credit card functionality would be implemented here.');
+      });
+    });
+    
+    // Payoff calculator functionality
+    const calculateButtons = document.querySelectorAll('[id^=calculatePayoff]');
+    calculateButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // In a real application, this would calculate the payoff time and interest
+        alert('Payoff calculation functionality would be implemented here.');
+      });
+    });
+    
+    // Schedule payments functionality
+    document.getElementById('schedulePayments').addEventListener('click', function() {
+      // In a real application, this would open a modal to schedule payments
+      alert('Schedule payments functionality would be implemented here.');
+    });
+    
+    // Debt payoff strategy functionality
+    document.getElementById('payoffStrategy').addEventListener('click', function() {
+      // In a real application, this would show debt payoff strategies
+      alert('Debt payoff strategy functionality would be implemented here.');
+    });
+    
+    // Download statements functionality
+    document.getElementById('downloadStatements').addEventListener('click', function() {
+      // In a real application, this would allow downloading statements
+      alert('Download statements functionality would be implemented here.');
+    });
+    
+    // Credit score check functionality
+    document.getElementById('creditScoreCheck').addEventListener('click', function() {
+      // In a real application, this would show credit score information
+      alert('Credit score check functionality would be implemented here.');
+    });
+    
+    // Sort functionality
+    document.getElementById('sortByName').addEventListener('click', function(e) {
+      e.preventDefault();
+      // In a real application, this would sort the cards by name
+      alert('Sort by name functionality would be implemented here.');
+    });
+    
+    document.getElementById('sortByBalance').addEventListener('click', function(e) {
+      e.preventDefault();
+      // In a real application, this would sort the cards by balance
+      alert('Sort by balance functionality would be implemented here.');
+    });
+    
+    document.getElementById('sortByDueDate').addEventListener('click', function(e) {
+      e.preventDefault();
+      // In a real application, this would sort the cards by due date
+      alert('Sort by due date functionality would be implemented here.');
+    });
+    
+    // Show inactive cards functionality
+    document.getElementById('showInactive').addEventListener('click', function(e) {
+      e.preventDefault();
+      // In a real application, this would show inactive cards
+      alert('Show inactive cards functionality would be implemented here.');
+    });
+  });
+</script>
+{% endblock %}

@@ -77,27 +77,82 @@ def login():
     # In a real application, this would only happen after successful authentication
     return redirect(url_for('dashboard'))
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     """
-    Placeholder for user registration functionality.
+    Handle user registration.
     
-    Future implementation will:
-    1. Render a registration form
-    2. Process form submission
-    3. Create new user accounts
-    4. Send verification emails
+    GET: Renders the registration form
+    POST: Processes the form submission, validates data, and creates a new user account
+    
+    Form fields:
+    - first_name: User's first name
+    - last_name: User's last name
+    - email: User's email address (used for login)
+    - phone: User's phone number
+    - password: User's password
+    - confirm_password: Password confirmation
+    - terms: Agreement to terms and conditions
     
     Returns:
-        Currently redirects to landing page with a flash message
+        GET: Rendered registration form template
+        POST: Redirect to dashboard on success or back to form with errors
     """
-    # TODO: Implement user registration
-    # - Create registration form template
-    # - Add form validation
-    # - Implement database operations
+    # If the request is POST, process the form submission
+    if request.method == 'POST':
+        # Extract form data
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        terms_accepted = 'terms' in request.form
+        
+        # Validate form data
+        errors = []
+        
+        # Check if all required fields are provided
+        if not all([first_name, last_name, email, phone, password, confirm_password]):
+            errors.append('All fields are required')
+        
+        # Validate email format (basic check)
+        if email and '@' not in email:
+            errors.append('Invalid email format')
+        
+        # Check if passwords match
+        if password != confirm_password:
+            errors.append('Passwords do not match')
+        
+        # Check password strength (basic check)
+        if password and len(password) < 8:
+            errors.append('Password must be at least 8 characters long')
+        
+        # Check terms acceptance
+        if not terms_accepted:
+            errors.append('You must accept the terms and conditions')
+        
+        # If there are validation errors, flash them and return to the form
+        if errors:
+            for error in errors:
+                flash(error, 'danger')
+            return render_template('register.html')
+        
+        # TODO: Check if email already exists in the database
+        # TODO: Hash the password before storing
+        # TODO: Store user data in the database
+        
+        # For now, just log the data (would be replaced with database operations)
+        app.logger.info(f"New user registration: {first_name} {last_name}, {email}, {phone}")
+        
+        # Flash success message
+        flash('Account created successfully! You can now log in.', 'success')
+        
+        # Redirect to login page
+        return redirect(url_for('index') + '#login')
     
-    flash('Registration functionality will be implemented in a future update.', 'info')
-    return redirect(url_for('index'))
+    # If the request is GET, render the registration form
+    return render_template('register.html')
 
 @app.route('/dashboard')
 def dashboard():
@@ -199,6 +254,215 @@ def import_csv():
     # - Redirect to login page if not authenticated
     
     return render_template('import.html')
+
+@app.route('/accounts/bank')
+def bank_accounts():
+    """
+    Render the bank accounts page.
+    
+    This page includes:
+    - List of all bank accounts with current balances
+    - Account details and transaction history
+    - Account management options (add, edit, remove)
+    - Balance trends visualization
+    
+    Returns:
+        Rendered HTML template for the bank accounts page
+    """
+    # TODO: Implement authentication check
+    # TODO: Fetch bank account data from database or Plaid API
+    
+    return render_template('accounts/bank.html')
+
+@app.route('/accounts/credit')
+def credit_cards():
+    """
+    Render the credit cards page.
+    
+    This page includes:
+    - List of all credit cards with current balances and limits
+    - Credit utilization visualization
+    - Payment information and due dates
+    - Interest calculations and payoff projections
+    
+    Returns:
+        Rendered HTML template for the credit cards page
+    """
+    # TODO: Implement authentication check
+    # TODO: Fetch credit card data from database or Plaid API
+    
+    return render_template('accounts/credit.html')
+
+@app.route('/accounts/investments')
+def investment_accounts():
+    """
+    Render the investment accounts page.
+    
+    This page includes:
+    - Portfolio overview with current values
+    - Asset allocation breakdown
+    - Performance metrics and comparison to benchmarks
+    - Individual holdings and their performance
+    
+    Returns:
+        Rendered HTML template for the investment accounts page
+    """
+    # TODO: Implement authentication check
+    # TODO: Fetch investment account data from database or Plaid API
+    
+    return render_template('accounts/investments.html')
+
+@app.route('/transactions')
+def transactions():
+    """
+    Render the transactions page.
+    
+    This page includes:
+    - Monthly view of all transactions
+    - Filtering and search functionality
+    - Category management
+    - Transaction details and export options
+    
+    Returns:
+        Rendered HTML template for the transactions page
+    """
+    # TODO: Implement authentication check
+    # TODO: Fetch transaction data from database or Plaid API
+    
+    return render_template('transactions.html')
+
+@app.route('/subscriptions')
+def subscriptions():
+    """
+    Render the subscriptions page.
+    
+    This page includes:
+    - List of all recurring monthly payments
+    - Payment schedule and renewal alerts
+    - Subscription management options
+    - Cost analysis and optimization suggestions
+    
+    Returns:
+        Rendered HTML template for the subscriptions page
+    """
+    # TODO: Implement authentication check
+    # TODO: Fetch subscription data from database
+    
+    return render_template('subscriptions.html')
+
+@app.route('/budget')
+def budget():
+    """
+    Render the budget page.
+    
+    This page includes:
+    - Manual income setup with tax calculator
+    - Category-based budget allocation
+    - Budget vs. actual comparison
+    - Budget insights and recommendations
+    
+    Returns:
+        Rendered HTML template for the budget page
+    """
+    # TODO: Implement authentication check
+    # TODO: Fetch budget data from database
+    
+    return render_template('budget.html')
+
+@app.route('/zakat')
+def zakat():
+    """
+    Render the Zakat calculator page.
+    
+    This page includes:
+    - Zakat calculation form with different asset types
+    - Explanation of Zakat eligibility criteria
+    - Calculation of 2.5% on eligible wealth
+    - Recommendations for Zakat distribution
+    
+    Returns:
+        Rendered HTML template for the Zakat calculator
+    """
+    # TODO: Implement authentication check
+    
+    return render_template('zakat.html')
+
+@app.route('/settings')
+def settings():
+    """
+    Render the settings page.
+    
+    This page includes:
+    - Dark mode toggle
+    - Sign out button
+    - Profile settings
+    - Notification preferences
+    - Currency display options
+    
+    Returns:
+        Rendered HTML template for the settings page
+    """
+    # TODO: Implement authentication check
+    
+    return render_template('settings.html')
+
+@app.route('/notifications')
+def notifications():
+    """
+    Render the notifications page.
+    
+    This page includes:
+    - List of all notifications
+    - Notification filtering options
+    - Mark as read functionality
+    - Notification preferences link
+    
+    Returns:
+        Rendered HTML template for the notifications page
+    """
+    # TODO: Implement authentication check
+    # TODO: Fetch notifications from database
+    
+    return render_template('notifications.html')
+
+@app.route('/privacy-security')
+def privacy_security():
+    """
+    Render the privacy and security settings page.
+    
+    This page includes:
+    - Two-factor authentication settings
+    - Privacy controls
+    - Data management options
+    - Security logs
+    - Connected devices
+    
+    Returns:
+        Rendered HTML template for the privacy and security page
+    """
+    # TODO: Implement authentication check
+    # TODO: Fetch security logs and connected devices
+    
+    return render_template('privacy_security.html')
+
+@app.route('/logout')
+def logout():
+    """
+    Handle user logout.
+    
+    This route:
+    1. Clears the user's session
+    2. Redirects to the login page
+    3. Displays a success message
+    
+    Returns:
+        Redirect to login page
+    """
+    # TODO: Implement actual session clearing
+    # session.clear()
+    
+    flash('You have been successfully logged out.', 'success')
+    return redirect(url_for('index'))
 
 # Application entry point
 if __name__ == '__main__':

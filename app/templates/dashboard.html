@@ -200,7 +200,7 @@
             <small class="text-uppercase text-muted fw-bold">Main Menu</small>
           </div>
           <div class="nav flex-column">
-            <a href="#" class="sidebar-link active">
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link active">
               <i class="bi bi-house"></i> Dashboard
             </a>
           </div>
@@ -219,48 +219,39 @@
                 <i class="bi bi-chevron-down ms-auto submenu-icon"></i>
               </a>
               <div class="collapse submenu" id="accountsSubmenu">
-                <a href="#" class="sidebar-link submenu-link">
+                <a href="{{ url_for('bank_accounts') }}" class="sidebar-link submenu-link">
                   <i class="bi bi-bank"></i> Bank Accounts
                 </a>
-                <a href="#" class="sidebar-link submenu-link">
+                <a href="{{ url_for('credit_cards') }}" class="sidebar-link submenu-link">
                   <i class="bi bi-credit-card-2-front"></i> Credit Cards
                 </a>
-                <a href="#" class="sidebar-link submenu-link">
+                <a href="{{ url_for('investment_accounts') }}" class="sidebar-link submenu-link">
                   <i class="bi bi-briefcase"></i> Investment Accounts
                 </a>
               </div>
             </div>
             
-            <a href="#" class="sidebar-link">
+            <a href="{{ url_for('transactions') }}" class="sidebar-link">
               <i class="bi bi-cash-stack"></i> Transactions
               <span class="badge rounded-pill bg-primary ms-auto">12</span>
             </a>
-            <a href="#" class="sidebar-link">
+            <a href="{{ url_for('subscriptions') }}" class="sidebar-link">
               <i class="bi bi-calendar-check"></i> Subscriptions
             </a>
-            <a href="#" class="sidebar-link">
+            <a href="{{ url_for('budget') }}" class="sidebar-link">
               <i class="bi bi-pie-chart"></i> Budgets
             </a>
           </div>
         </div>
         
-        <!-- Analysis Section -->
+        <!-- Zakat Section -->
         <div class="sidebar-section mb-2">
           <div class="sidebar-section-header">
-            <small class="text-uppercase text-muted fw-bold">Analysis</small>
+            <small class="text-uppercase text-muted fw-bold">Islamic Finance</small>
           </div>
           <div class="nav flex-column">
-            <a href="#" class="sidebar-link">
-              <i class="bi bi-graph-up"></i> Investments
-            </a>
-            <a href="#" class="sidebar-link">
-              <i class="bi bi-calculator"></i> Zakat
-            </a>
-            <a href="#" class="sidebar-link">
-              <i class="bi bi-bar-chart"></i> Reports
-            </a>
-            <a href="#" class="sidebar-link">
-              <i class="bi bi-arrow-up-right-circle"></i> Net Worth
+            <a href="{{ url_for('zakat') }}" class="sidebar-link">
+              <i class="bi bi-calculator"></i> Zakat Calculator
             </a>
           </div>
         </div>
@@ -271,14 +262,14 @@
             <small class="text-uppercase text-muted fw-bold">Settings</small>
           </div>
           <div class="nav flex-column">
-            <a href="#" class="sidebar-link">
+            <a href="{{ url_for('settings') }}" class="sidebar-link">
               <i class="bi bi-gear"></i> Settings
             </a>
-            <a href="#" class="sidebar-link">
+            <a href="{{ url_for('notifications') }}" class="sidebar-link">
               <i class="bi bi-bell"></i> Notifications
               <span class="badge rounded-pill bg-danger ms-auto">3</span>
             </a>
-            <a href="#" class="sidebar-link">
+            <a href="{{ url_for('privacy_security') }}" class="sidebar-link">
               <i class="bi bi-shield-lock"></i> Privacy & Security
             </a>
           </div>
@@ -286,15 +277,6 @@
         
         <!-- Quick Actions -->
         <div class="mt-auto">
-          <div class="sidebar-search mb-3">
-            <div class="input-group">
-              <span class="input-group-text bg-light border-0">
-                <i class="bi bi-search"></i>
-              </span>
-              <input type="text" class="form-control bg-light border-0" placeholder="Search...">
-            </div>
-          </div>
-          
           <div class="d-grid gap-2">
             <a href="{{ url_for('import_csv') }}" class="btn btn-outline-primary btn-sm">
               <i class="bi bi-cloud-upload"></i> Import CSV
@@ -688,7 +670,7 @@
                 </div>
                 
                 <div class="d-grid mt-3">
-                  <a href="#" class="btn btn-outline-primary btn-sm">View All Transactions</a>
+                  <a href="{{ url_for('transactions') }}" class="btn btn-outline-primary btn-sm">View All Transactions</a>
                 </div>
               </div>
             </div>
@@ -821,31 +803,38 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Toggle sidebar functionality
+    // Sidebar toggle functionality - consolidated
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
     const toggleBtn = document.getElementById('toggle-sidebar');
+    const closeSidebarButton = document.getElementById('close-sidebar');
     
+    // Toggle sidebar when the toggle button is clicked
     toggleBtn.addEventListener('click', function() {
       sidebar.classList.toggle('sidebar-collapsed');
       mainContent.classList.toggle('content-expanded');
+      
+      // Change the toggle icon based on sidebar state
+      const toggleIcon = this.querySelector('i');
+      if (sidebar.classList.contains('sidebar-collapsed')) {
+        toggleIcon.classList.remove('bi-list');
+        toggleIcon.classList.add('bi-list-nested');
+      } else {
+        toggleIcon.classList.remove('bi-list-nested');
+        toggleIcon.classList.add('bi-list');
+      }
     });
     
-    // Handle mobile sidebar closing
-    const closeSidebarBtn = document.querySelector('.toggle-sidebar-btn');
-    if (closeSidebarBtn) {
-      closeSidebarBtn.addEventListener('click', function() {
-        sidebar.classList.add('sidebar-collapsed');
-        mainContent.classList.add('content-expanded');
-      });
-    }
-    
     // Close sidebar on mobile when close button is clicked
-    const closeSidebarButton = document.getElementById('close-sidebar');
     if (closeSidebarButton) {
       closeSidebarButton.addEventListener('click', function() {
         sidebar.classList.add('sidebar-collapsed');
         mainContent.classList.add('content-expanded');
+        
+        // Update toggle button icon
+        const toggleIcon = toggleBtn.querySelector('i');
+        toggleIcon.classList.remove('bi-list');
+        toggleIcon.classList.add('bi-list-nested');
       });
     }
     

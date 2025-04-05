@@ -16,11 +16,31 @@
  * Defining colors and common values as variables for consistency and easy updates
  */
 :root {
+  /* Light Theme (Default) */
   --primary-green: #0B6E4F;  /* Main brand color for buttons, headings */
   --primary-salmon: #FA8072;  /* Accent color for highlights, secondary elements */
   --background-white: #FEFEFA;  /* Background color for main content areas */
   --text-dark: #333333;  /* Primary text color */
   --text-light: #FFFFFF;  /* Text color on dark backgrounds */
+  --card-bg: #FFFFFF;  /* Card background color */
+  --border-color: #dee2e6;  /* Border color */
+  --sidebar-bg: #f8f9fa;  /* Sidebar background color */
+  --input-bg: #FFFFFF;  /* Input background color */
+  --shadow-color: rgba(0, 0, 0, 0.1);  /* Shadow color */
+}
+
+/* Dark Theme */
+.dark-theme {
+  --primary-green: #0B8E6F;  /* Slightly brighter green for dark mode */
+  --primary-salmon: #FF9B8C;  /* Slightly brighter salmon for dark mode */
+  --background-white: #121212;  /* Dark background */
+  --text-dark: #E0E0E0;  /* Light text for dark mode */
+  --text-light: #FFFFFF;  /* White text remains the same */
+  --card-bg: #1E1E1E;  /* Dark card background */
+  --border-color: #333333;  /* Darker border color */
+  --sidebar-bg: #1A1A1A;  /* Dark sidebar background */
+  --input-bg: #2A2A2A;  /* Dark input background */
+  --shadow-color: rgba(0, 0, 0, 0.3);  /* Darker shadow */
 }
 
 /*
@@ -213,11 +233,11 @@ body {
 }
 
 .feature-card {
-  background-color: white;  /* White background for cards */
+  background-color: var(--card-bg);  /* Card background color */
   border-radius: 10px;  /* Rounded corners */
   padding: 2rem;  /* Generous internal padding */
   height: 100%;  /* Full height for equal-height cards */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);  /* Subtle shadow for depth */
+  box-shadow: 0 5px 15px var(--shadow-color);  /* Subtle shadow for depth */
   transition: transform 0.3s ease;  /* Smooth transition for hover effect */
 }
 
@@ -243,14 +263,15 @@ body {
  * Styling for the login form and card
  */
 .login-section {
-  background-color: #f8f9fa;  /* Light gray background for contrast */
+  background-color: var(--sidebar-bg);  /* Light background for contrast */
   padding: 5rem 0;  /* Generous vertical padding */
 }
 
 .login-card {
   border: none;  /* Remove default card border */
   border-radius: 10px;  /* Rounded corners */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);  /* Pronounced shadow for depth */
+  box-shadow: 0 10px 30px var(--shadow-color);  /* Pronounced shadow for depth */
+  background-color: var(--card-bg);  /* Card background color */
 }
 
 .login-card .card-title {

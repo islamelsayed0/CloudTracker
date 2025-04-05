@@ -1,0 +1,678 @@
+{# 
+  transactions.html - Transactions Page for Muzzy Tracker
+  
+  This template extends the base.html template and provides the transactions interface.
+  It includes:
+  1. Monthly view of all transactions
+  2. Filtering and search functionality
+  3. Category management
+  4. Transaction details and export options
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Transactions{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Transactions page specific styles */
+  .page-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 2rem;
+  }
+  
+  .filter-section {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .transaction-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    margin-bottom: 2rem;
+  }
+  
+  .transaction-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .transaction-card .card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+  }
+  
+  .transaction-row {
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  
+  .transaction-row:hover {
+    background-color: rgba(11, 110, 79, 0.05);
+  }
+  
+  .transaction-row.expanded {
+    background-color: rgba(11, 110, 79, 0.05);
+  }
+  
+  .transaction-details {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .category-badge {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 50rem;
+  }
+  
+  .transaction-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+  }
+  
+  .icon-shopping { background-color: #4E79A7; }
+  .icon-food { background-color: #F28E2B; }
+  .icon-transport { background-color: #E15759; }
+  .icon-bills { background-color: #76B7B2; }
+  .icon-entertainment { background-color: #59A14F; }
+  .icon-income { background-color: #28a745; }
+  .icon-other { background-color: #B07AA1; }
+  
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .month-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  
+  .month-selector .btn-group {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .month-selector .current-month {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 1rem;
+  }
+  
+  .summary-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+  }
+  
+  .summary-card h5 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-green);
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .summary-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .summary-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid #dee2e6;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h1 class="mb-0">Transactions</h1>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <div class="btn-group">
+          <button class="btn btn-outline-primary">
+            <i class="bi bi-download"></i> Export
+          </button>
+          <button class="btn btn-outline-primary">
+            <i class="bi bi-plus"></i> Add Transaction
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Month Selector -->
+  <div class="month-selector">
+    <div class="btn-group">
+      <button class="btn btn-outline-secondary">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <span class="current-month">April 2025</span>
+      <button class="btn btn-outline-secondary" disabled>
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        Jump to Month
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="#">January 2025</a></li>
+        <li><a class="dropdown-item" href="#">February 2025</a></li>
+        <li><a class="dropdown-item" href="#">March 2025</a></li>
+        <li><a class="dropdown-item" href="#">April 2025</a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-lg-9">
+      <!-- Filter Section -->
+      <div class="filter-section mb-4">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="input-group">
+              <span class="input-group-text bg-white">
+                <i class="bi bi-search"></i>
+              </span>
+              <input type="text" class="form-control" placeholder="Search transactions...">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select class="form-select">
+              <option selected>All Accounts</option>
+              <option>Chase Checking</option>
+              <option>Bank of America Savings</option>
+              <option>Chase Sapphire</option>
+              <option>Citi Double Cash</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select class="form-select">
+              <option selected>All Categories</option>
+              <option>Food & Dining</option>
+              <option>Shopping</option>
+              <option>Transportation</option>
+              <option>Bills & Utilities</option>
+              <option>Entertainment</option>
+              <option>Income</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100">Filter</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Transactions List -->
+      <div class="transaction-card card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>All Transactions</div>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#">Sort by Date</a></li>
+              <li><a class="dropdown-item" href="#">Sort by Amount</a></li>
+              <li><a class="dropdown-item" href="#">Sort by Category</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#">Show Uncategorized</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;"></th>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                  <th>Account</th>
+                  <th class="text-end">Amount</th>
+                  <th style="width: 50px;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Transaction Row 1 -->
+                <tr class="transaction-row" data-bs-toggle="collapse" data-bs-target="#details1">
+                  <td>
+                    <div class="transaction-icon icon-shopping">
+                      <i class="bi bi-cart"></i>
+                    </div>
+                  </td>
+                  <td>Apr 2, 2025</td>
+                  <td>Whole Foods Market</td>
+                  <td>
+                    <span class="badge bg-light text-dark category-badge">Food & Dining</span>
+                  </td>
+                  <td>Chase Sapphire</td>
+                  <td class="text-end text-danger">-$84.32</td>
+                  <td class="text-center">
+                    <i class="bi bi-chevron-down"></i>
+                  </td>
+                </tr>
+                <tr class="collapse" id="details1">
+                  <td colspan="7">
+                    <div class="transaction-details">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Transaction ID:</strong> TX123456789</p>
+                          <p class="mb-1"><strong>Merchant:</strong> Whole Foods Market #123</p>
+                          <p class="mb-1"><strong>Address:</strong> 123 Main St, New York, NY</p>
+                        </div>
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">Cleared</span></p>
+                          <p class="mb-1"><strong>Posted Date:</strong> Apr 3, 2025</p>
+                          <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-secondary me-1">Edit</button>
+                            <button class="btn btn-sm btn-outline-secondary me-1">Split</button>
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mt-3">
+                        <p class="mb-1"><strong>Notes:</strong></p>
+                        <p class="text-muted small">Weekly grocery shopping</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Transaction Row 2 -->
+                <tr class="transaction-row" data-bs-toggle="collapse" data-bs-target="#details2">
+                  <td>
+                    <div class="transaction-icon icon-bills">
+                      <i class="bi bi-house"></i>
+                    </div>
+                  </td>
+                  <td>Apr 1, 2025</td>
+                  <td>Rent Payment</td>
+                  <td>
+                    <span class="badge bg-light text-dark category-badge">Housing</span>
+                  </td>
+                  <td>Chase Checking</td>
+                  <td class="text-end text-danger">-$1,850.00</td>
+                  <td class="text-center">
+                    <i class="bi bi-chevron-down"></i>
+                  </td>
+                </tr>
+                <tr class="collapse" id="details2">
+                  <td colspan="7">
+                    <div class="transaction-details">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Transaction ID:</strong> TX123456788</p>
+                          <p class="mb-1"><strong>Merchant:</strong> ABC Property Management</p>
+                          <p class="mb-1"><strong>Address:</strong> 456 Park Ave, New York, NY</p>
+                        </div>
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">Cleared</span></p>
+                          <p class="mb-1"><strong>Posted Date:</strong> Apr 1, 2025</p>
+                          <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-secondary me-1">Edit</button>
+                            <button class="btn btn-sm btn-outline-secondary me-1">Split</button>
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mt-3">
+                        <p class="mb-1"><strong>Notes:</strong></p>
+                        <p class="text-muted small">Monthly rent payment</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Transaction Row 3 -->
+                <tr class="transaction-row" data-bs-toggle="collapse" data-bs-target="#details3">
+                  <td>
+                    <div class="transaction-icon icon-income">
+                      <i class="bi bi-building"></i>
+                    </div>
+                  </td>
+                  <td>Mar 31, 2025</td>
+                  <td>Payroll Deposit</td>
+                  <td>
+                    <span class="badge bg-light text-dark category-badge">Income</span>
+                  </td>
+                  <td>Chase Checking</td>
+                  <td class="text-end text-success">+$3,250.00</td>
+                  <td class="text-center">
+                    <i class="bi bi-chevron-down"></i>
+                  </td>
+                </tr>
+                <tr class="collapse" id="details3">
+                  <td colspan="7">
+                    <div class="transaction-details">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Transaction ID:</strong> TX123456787</p>
+                          <p class="mb-1"><strong>Merchant:</strong> XYZ Corporation</p>
+                          <p class="mb-1"><strong>Address:</strong> 789 Broadway, New York, NY</p>
+                        </div>
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">Cleared</span></p>
+                          <p class="mb-1"><strong>Posted Date:</strong> Mar 31, 2025</p>
+                          <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-secondary me-1">Edit</button>
+                            <button class="btn btn-sm btn-outline-secondary me-1">Split</button>
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mt-3">
+                        <p class="mb-1"><strong>Notes:</strong></p>
+                        <p class="text-muted small">Bi-weekly salary deposit</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Transaction Row 4 -->
+                <tr class="transaction-row" data-bs-toggle="collapse" data-bs-target="#details4">
+                  <td>
+                    <div class="transaction-icon icon-food">
+                      <i class="bi bi-cup-hot"></i>
+                    </div>
+                  </td>
+                  <td>Mar 30, 2025</td>
+                  <td>Starbucks</td>
+                  <td>
+                    <span class="badge bg-light text-dark category-badge">Food & Dining</span>
+                  </td>
+                  <td>Citi Double Cash</td>
+                  <td class="text-end text-danger">-$5.45</td>
+                  <td class="text-center">
+                    <i class="bi bi-chevron-down"></i>
+                  </td>
+                </tr>
+                <tr class="collapse" id="details4">
+                  <td colspan="7">
+                    <div class="transaction-details">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Transaction ID:</strong> TX123456786</p>
+                          <p class="mb-1"><strong>Merchant:</strong> Starbucks #456</p>
+                          <p class="mb-1"><strong>Address:</strong> 321 5th Ave, New York, NY</p>
+                        </div>
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">Cleared</span></p>
+                          <p class="mb-1"><strong>Posted Date:</strong> Mar 31, 2025</p>
+                          <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-secondary me-1">Edit</button>
+                            <button class="btn btn-sm btn-outline-secondary me-1">Split</button>
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mt-3">
+                        <p class="mb-1"><strong>Notes:</strong></p>
+                        <p class="text-muted small">Morning coffee</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Transaction Row 5 -->
+                <tr class="transaction-row" data-bs-toggle="collapse" data-bs-target="#details5">
+                  <td>
+                    <div class="transaction-icon icon-entertainment">
+                      <i class="bi bi-film"></i>
+                    </div>
+                  </td>
+                  <td>Mar 28, 2025</td>
+                  <td>Netflix Subscription</td>
+                  <td>
+                    <span class="badge bg-light text-dark category-badge">Entertainment</span>
+                  </td>
+                  <td>Chase Sapphire</td>
+                  <td class="text-end text-danger">-$15.99</td>
+                  <td class="text-center">
+                    <i class="bi bi-chevron-down"></i>
+                  </td>
+                </tr>
+                <tr class="collapse" id="details5">
+                  <td colspan="7">
+                    <div class="transaction-details">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Transaction ID:</strong> TX123456785</p>
+                          <p class="mb-1"><strong>Merchant:</strong> Netflix, Inc.</p>
+                          <p class="mb-1"><strong>Address:</strong> Los Gatos, CA</p>
+                        </div>
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">Cleared</span></p>
+                          <p class="mb-1"><strong>Posted Date:</strong> Mar 29, 2025</p>
+                          <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-secondary me-1">Edit</button>
+                            <button class="btn btn-sm btn-outline-secondary me-1">Split</button>
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mt-3">
+                        <p class="mb-1"><strong>Notes:</strong></p>
+                        <p class="text-muted small">Monthly subscription</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Transaction Row 6 -->
+                <tr class="transaction-row" data-bs-toggle="collapse" data-bs-target="#details6">
+                  <td>
+                    <div class="transaction-icon icon-transport">
+                      <i class="bi bi-fuel-pump"></i>
+                    </div>
+                  </td>
+                  <td>Mar 27, 2025</td>
+                  <td>Shell Gas Station</td>
+                  <td>
+                    <span class="badge bg-light text-dark category-badge">Transportation</span>
+                  </td>
+                  <td>Citi Double Cash</td>
+                  <td class="text-end text-danger">-$45.67</td>
+                  <td class="text-center">
+                    <i class="bi bi-chevron-down"></i>
+                  </td>
+                </tr>
+                <tr class="collapse" id="details6">
+                  <td colspan="7">
+                    <div class="transaction-details">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Transaction ID:</strong> TX123456784</p>
+                          <p class="mb-1"><strong>Merchant:</strong> Shell #789</p>
+                          <p class="mb-1"><strong>Address:</strong> 555 Highway Dr, New York, NY</p>
+                        </div>
+                        <div class="col-md-6">
+                          <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">Cleared</span></p>
+                          <p class="mb-1"><strong>Posted Date:</strong> Mar 28, 2025</p>
+                          <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-secondary me-1">Edit</button>
+                            <button class="btn btn-sm btn-outline-secondary me-1">Split</button>
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mt-3">
+                        <p class="mb-1"><strong>Notes:</strong></p>
+                        <p class="text-muted small">Filled up gas tank</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer bg-white">
+          <div class="pagination-container">
+            <nav aria-label="Transaction pagination">
+              <ul class="pagination">
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                  <a class="page-link" href="#">Next</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-3">
+      <!-- Monthly Summary -->
+      <div class="summary-card card">
+        <h5>April 2025 Summary</h5>
+        <div class="summary-item">
+          <span>Total Income</span>
+          <span class="text-success">+$3,250.00</span>
+        </div>
+        <div class="summary-item">
+          <span>Total Expenses</span>
+          <span class="text-danger">-$2,001.43</span>
+        </div>
+        <div class="summary-total">
+          <div class="d-flex justify-content-between">
+            <span>Net Cash Flow</span>
+            <span class="text-success">+$1,248.57</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Top Categories -->
+      <div class="summary-card card">
+        <h5>Top Categories</h5>
+        <div class="summary-item">
+          <span>Housing</span>
+          <span class="text-danger">-$1,850.00</span>
+        </div>
+        <div class="summary-item">
+          <span>Food & Dining</span>
+          <span class="text-danger">-$89.77</span>
+        </div>
+        <div class="summary-item">
+          <span>Transportation</span>
+          <span class="text-danger">-$45.67</span>
+        </div>
+        <div class="summary-item">
+          <span>Entertainment</span>
+          <span class="text-danger">-$15.99</span>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="summary-card card">
+        <h5>Quick Actions</h5>
+        <div class="d-grid gap-2">
+          <button class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-plus-circle"></i> Add Transaction
+          </button>
+          <button class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-tags"></i> Manage Categories
+          </button>
+          <button class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-arrow-repeat"></i> Reconcile Account
+          </button>
+          <button class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Export to Excel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Toggle transaction details
+    const transactionRows = document.querySelectorAll('.transaction-row');
+    
+    transactionRows.forEach(row => {
+      row.addEventListener('click', function() {
+        // Toggle the expanded class
+        this.classList.toggle('expanded');
+        
+        // Toggle the chevron icon
+        const chevron = this.querySelector('.bi-chevron-down, .bi-chevron-up');
+        if (chevron.classList.contains('bi-chevron-down')) {
+          chevron.classList.remove('bi-chevron-down');
+          chevron.classList.add('bi-chevron-up');
+        } else {
+          chevron.classList.remove('bi-chevron-up');
+          chevron.classList.add('bi-chevron-down');
+        }
+      });
+    });
+    
+    // Filter functionality
+    const filterButton = document.querySelector('.filter-section .btn-primary');
+    filterButton.addEventListener('click', function() {
+      // In a real application, this would filter the transactions
+      // For now, we'll just show an alert
+      alert('Filtering functionality would be implemented here.');
+    });
+    
+    // Export functionality
+    const exportButton = document.querySelector('.btn-group .btn-outline-primary:first-child');
+    exportButton.addEventListener('click', function() {
+      // In a real application, this would export the transactions
+      // For now, we'll just show an alert
+      alert('Export functionality would be implemented here.');
+    });
+    
+    // Add transaction functionality
+    const addButtons = document.querySelectorAll('.btn-outline-primary:nth-child(2), .btn-outline-primary:first-child');
+    addButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // In a real application, this would open a modal to add a transaction
+        // For now, we'll just show an alert
+        alert('Add transaction functionality would be implemented here.');
+      });
+    });
+  });
+</script>
+{% endblock %}

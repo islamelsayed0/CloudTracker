@@ -1,0 +1,517 @@
+{# 
+  privacy_security.html - Privacy & Security Settings for Muzzy Tracker
+  
+  This template extends the base.html template and provides the privacy and security settings interface.
+  It includes:
+  1. Two-factor authentication settings
+  2. Privacy controls
+  3. Data management options
+  4. Security logs
+  5. Connected devices
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Privacy & Security{% endblock %}
+
+{% block extra_css %}
+<style>
+  .privacy-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .privacy-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    margin-bottom: 1.5rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .card-header-custom {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--primary-green);
+  }
+  
+  .privacy-section {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .privacy-section:last-child {
+    border-bottom: none;
+  }
+  
+  .privacy-title {
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Toggle Switch Styles */
+  .form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    margin-top: 0.25em;
+  }
+  
+  .form-switch .form-check-input:checked {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+  }
+  
+  .form-switch .form-check-label {
+    padding-left: 0.5rem;
+  }
+  
+  /* Form Styles */
+  .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-dark);
+  }
+  
+  .form-control:focus {
+    background-color: var(--input-bg);
+    color: var(--text-dark);
+  }
+  
+  /* Security Status */
+  .security-status {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  .security-status.high {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+  }
+  
+  .security-status.medium {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+  }
+  
+  .security-status.low {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+  }
+  
+  /* Device List */
+  .device-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .device-item:last-child {
+    border-bottom: none;
+  }
+  
+  .device-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(11, 110, 79, 0.1);
+    color: var(--primary-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+  }
+  
+  .device-current {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 1rem;
+    background-color: rgba(11, 110, 79, 0.1);
+    color: var(--primary-green);
+  }
+  
+  /* Security Log */
+  .log-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .log-item:last-child {
+    border-bottom: none;
+  }
+  
+  .log-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+  }
+  
+  .log-icon.login {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+  }
+  
+  .log-icon.settings {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+  }
+  
+  .log-icon.security {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+  }
+  
+  .log-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container privacy-container">
+  <h1 class="privacy-title mb-4">Privacy & Security</h1>
+  
+  <!-- Security Overview -->
+  <div class="privacy-card">
+    <div class="card-header card-header-custom">
+      <h2 class="h5 mb-0">Security Overview</h2>
+    </div>
+    <div class="card-body">
+      <div class="privacy-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h3 class="h6 mb-1">Security Status</h3>
+            <p class="text-muted small mb-0">Your account security level</p>
+          </div>
+          <div>
+            <span class="security-status medium">Medium</span>
+          </div>
+        </div>
+        
+        <div class="alert alert-warning small">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Enable two-factor authentication to improve your account security.
+        </div>
+        
+        <div class="progress mt-3" style="height: 8px;">
+          <div class="progress-bar bg-warning" role="progressbar" style="width: 65%"></div>
+        </div>
+        
+        <div class="d-flex justify-content-between mt-1">
+          <small class="text-muted">Low</small>
+          <small class="text-muted">Medium</small>
+          <small class="text-muted">High</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Two-Factor Authentication -->
+  <div class="privacy-card">
+    <div class="card-header card-header-custom">
+      <h2 class="h5 mb-0">Two-Factor Authentication</h2>
+    </div>
+    <div class="card-body">
+      <div class="privacy-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h3 class="h6 mb-1">Enable Two-Factor Authentication</h3>
+            <p class="text-muted small mb-0">Add an extra layer of security to your account</p>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="twoFactorToggle">
+          </div>
+        </div>
+        
+        <div id="twoFactorOptions" class="mt-4" style="display: none;">
+          <h4 class="h6 mb-3">Choose Authentication Method</h4>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="radio" name="twoFactorMethod" id="authApp" checked>
+            <label class="form-check-label" for="authApp">
+              Authenticator App (Recommended)
+            </label>
+            <div class="text-muted small">Use Google Authenticator, Authy, or similar apps</div>
+          </div>
+          
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="radio" name="twoFactorMethod" id="sms">
+            <label class="form-check-label" for="sms">
+              SMS Text Message
+            </label>
+            <div class="text-muted small">Receive codes via text message</div>
+          </div>
+          
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="radio" name="twoFactorMethod" id="email">
+            <label class="form-check-label" for="email">
+              Email
+            </label>
+            <div class="text-muted small">Receive codes via email</div>
+          </div>
+          
+          <button type="button" class="btn btn-primary">Set Up Two-Factor Authentication</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Privacy Controls -->
+  <div class="privacy-card">
+    <div class="card-header card-header-custom">
+      <h2 class="h5 mb-0">Privacy Controls</h2>
+    </div>
+    <div class="card-body">
+      <div class="privacy-section">
+        <h3 class="h6 mb-3">Data Sharing</h3>
+        
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="analyticsSharing" checked>
+          <label class="form-check-label" for="analyticsSharing">
+            Share Anonymous Usage Data
+          </label>
+          <div class="text-muted small">Help us improve Muzzy Tracker by sharing anonymous usage statistics</div>
+        </div>
+        
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="thirdPartySharing">
+          <label class="form-check-label" for="thirdPartySharing">
+            Share Data with Third Parties
+          </label>
+          <div class="text-muted small">Allow sharing of your data with trusted third-party services</div>
+        </div>
+        
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="marketingEmails" checked>
+          <label class="form-check-label" for="marketingEmails">
+            Marketing Communications
+          </label>
+          <div class="text-muted small">Receive promotional emails and updates about new features</div>
+        </div>
+      </div>
+      
+      <div class="privacy-section">
+        <h3 class="h6 mb-3">Plaid Connection</h3>
+        <p class="text-muted small mb-3">Manage your connection to financial institutions through Plaid</p>
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h6 class="mb-1">Connected Institutions</h6>
+            <p class="text-muted small mb-0">3 banks connected through Plaid</p>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-primary">Manage Connections</button>
+        </div>
+        
+        <div class="alert alert-info small">
+          <i class="bi bi-info-circle me-2"></i>
+          Your bank credentials are never stored by Muzzy Tracker. All connections are managed securely through Plaid.
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Data Management -->
+  <div class="privacy-card">
+    <div class="card-header card-header-custom">
+      <h2 class="h5 mb-0">Data Management</h2>
+    </div>
+    <div class="card-body">
+      <div class="privacy-section">
+        <h3 class="h6 mb-3">Export Your Data</h3>
+        <p class="text-muted small mb-3">Download a copy of all your data stored in Muzzy Tracker</p>
+        
+        <div class="d-flex gap-2 mb-4">
+          <button type="button" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-text me-2"></i>Export All Data
+          </button>
+          <button type="button" class="btn btn-outline-secondary">
+            <i class="bi bi-file-earmark-zip me-2"></i>Export Transactions Only
+          </button>
+        </div>
+        
+        <h3 class="h6 mb-3">Delete Your Data</h3>
+        <p class="text-muted small mb-3">Permanently delete your account and all associated data</p>
+        
+        <button type="button" class="btn btn-outline-danger">
+          <i class="bi bi-trash me-2"></i>Request Account Deletion
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Connected Devices -->
+  <div class="privacy-card">
+    <div class="card-header card-header-custom">
+      <h2 class="h5 mb-0">Connected Devices</h2>
+    </div>
+    <div class="card-body">
+      <div class="privacy-section">
+        <p class="text-muted small mb-3">Devices that are currently logged into your account</p>
+        
+        <div class="device-item d-flex align-items-center">
+          <div class="device-icon">
+            <i class="bi bi-laptop"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">Windows PC - Chrome <span class="device-current">Current Device</span></h6>
+                <p class="text-muted small mb-0">New York, USA • Last active: Just now</p>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" disabled>
+                <i class="bi bi-x-lg me-1"></i>Remove
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="device-item d-flex align-items-center">
+          <div class="device-icon">
+            <i class="bi bi-phone"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">iPhone - Safari</h6>
+                <p class="text-muted small mb-0">New York, USA • Last active: 2 hours ago</p>
+              </div>
+              <button class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-x-lg me-1"></i>Remove
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="device-item d-flex align-items-center">
+          <div class="device-icon">
+            <i class="bi bi-tablet"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">iPad - Safari</h6>
+                <p class="text-muted small mb-0">New York, USA • Last active: 3 days ago</p>
+              </div>
+              <button class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-x-lg me-1"></i>Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Security Log -->
+  <div class="privacy-card">
+    <div class="card-header card-header-custom">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h5 mb-0">Security Log</h2>
+        <button class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-download me-1"></i>Export Log
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="privacy-section">
+        <p class="text-muted small mb-3">Recent security events for your account</p>
+        
+        <div class="log-item d-flex align-items-start">
+          <div class="log-icon login">
+            <i class="bi bi-box-arrow-in-right"></i>
+          </div>
+          <div>
+            <h6 class="mb-1">Successful Login</h6>
+            <p class="text-muted small mb-0">Windows PC - Chrome • New York, USA</p>
+            <span class="log-time">Today, 1:05 AM</span>
+          </div>
+        </div>
+        
+        <div class="log-item d-flex align-items-start">
+          <div class="log-icon settings">
+            <i class="bi bi-gear"></i>
+          </div>
+          <div>
+            <h6 class="mb-1">Password Changed</h6>
+            <p class="text-muted small mb-0">Windows PC - Chrome • New York, USA</p>
+            <span class="log-time">April 3, 2025, 11:32 PM</span>
+          </div>
+        </div>
+        
+        <div class="log-item d-flex align-items-start">
+          <div class="log-icon login">
+            <i class="bi bi-box-arrow-in-right"></i>
+          </div>
+          <div>
+            <h6 class="mb-1">Successful Login</h6>
+            <p class="text-muted small mb-0">iPhone - Safari • New York, USA</p>
+            <span class="log-time">April 2, 2025, 8:15 AM</span>
+          </div>
+        </div>
+        
+        <div class="log-item d-flex align-items-start">
+          <div class="log-icon security">
+            <i class="bi bi-shield-lock"></i>
+          </div>
+          <div>
+            <h6 class="mb-1">Security Settings Updated</h6>
+            <p class="text-muted small mb-0">Windows PC - Chrome • New York, USA</p>
+            <span class="log-time">April 1, 2025, 7:45 PM</span>
+          </div>
+        </div>
+        
+        <div class="log-item d-flex align-items-start">
+          <div class="log-icon login">
+            <i class="bi bi-box-arrow-in-right"></i>
+          </div>
+          <div>
+            <h6 class="mb-1">Successful Login</h6>
+            <p class="text-muted small mb-0">iPad - Safari • New York, USA</p>
+            <span class="log-time">March 30, 2025, 10:22 AM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Two-factor authentication toggle
+    const twoFactorToggle = document.getElementById('twoFactorToggle');
+    const twoFactorOptions = document.getElementById('twoFactorOptions');
+    
+    twoFactorToggle.addEventListener('change', function() {
+      if (this.checked) {
+        twoFactorOptions.style.display = 'block';
+      } else {
+        twoFactorOptions.style.display = 'none';
+      }
+    });
+    
+    // Device removal confirmation
+    const removeButtons = document.querySelectorAll('.btn-outline-danger');
+    
+    removeButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        if (confirm('Are you sure you want to remove this device? This will sign out the device from your account.')) {
+          // In a real app, this would send a request to the server
+          const deviceItem = this.closest('.device-item');
+          deviceItem.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

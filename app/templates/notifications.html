@@ -1,0 +1,319 @@
+{# 
+  notifications.html - Notifications Page for Muzzy Tracker
+  
+  This template extends the base.html template and provides the notifications interface.
+  It includes:
+  1. List of all notifications
+  2. Notification filtering options
+  3. Mark as read functionality
+  4. Notification preferences link
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Notifications{% endblock %}
+
+{% block extra_css %}
+<style>
+  .notifications-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .notification-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    margin-bottom: 1.5rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .card-header-custom {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--primary-green);
+  }
+  
+  .notification-title {
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+  }
+  
+  .notification-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+  }
+  
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+  
+  .notification-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  
+  .notification-item.unread {
+    background-color: rgba(11, 110, 79, 0.05);
+  }
+  
+  .notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+  }
+  
+  .notification-icon.bill {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+  }
+  
+  .notification-icon.budget {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+  }
+  
+  .notification-icon.security {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+  }
+  
+  .notification-icon.system {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+  }
+  
+  .notification-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  
+  .notification-badge {
+    font-size: 0.7rem;
+    padding: 0.25em 0.6em;
+    margin-left: 0.5rem;
+  }
+  
+  .notification-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .notification-actions button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .filter-btn.active {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+    color: white;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container notifications-container">
+  <h1 class="notification-title mb-4">Notifications</h1>
+  
+  <!-- Notification Filters -->
+  <div class="notification-card mb-4">
+    <div class="card-header card-header-custom">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="h5 mb-0">Notification Center</h2>
+        <a href="{{ url_for('settings') }}" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-gear me-1"></i> Notification Settings
+        </a>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <button class="btn btn-sm filter-btn active" data-filter="all">All</button>
+        <button class="btn btn-sm filter-btn btn-outline-secondary" data-filter="unread">Unread</button>
+        <button class="btn btn-sm filter-btn btn-outline-warning" data-filter="bill">Bills</button>
+        <button class="btn btn-sm filter-btn btn-outline-danger" data-filter="budget">Budget</button>
+        <button class="btn btn-sm filter-btn btn-outline-primary" data-filter="security">Security</button>
+        <button class="btn btn-sm filter-btn btn-outline-secondary" data-filter="system">System</button>
+      </div>
+      
+      <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-check2-all me-1"></i> Mark All as Read
+        </button>
+      </div>
+      
+      <!-- Notification List -->
+      <div class="notification-list">
+        <!-- Bill Notification -->
+        <div class="notification-item unread d-flex align-items-start" data-type="bill">
+          <div class="notification-icon bill">
+            <i class="bi bi-credit-card"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">Credit Card Payment Due</h6>
+                <p class="mb-1">Your Chase Sapphire payment of $250.00 is due in 5 days.</p>
+                <span class="notification-time">2 hours ago</span>
+                <span class="badge bg-warning text-dark notification-badge">Bill</span>
+              </div>
+              <div class="notification-actions">
+                <button class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-check2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Budget Notification -->
+        <div class="notification-item unread d-flex align-items-start" data-type="budget">
+          <div class="notification-icon budget">
+            <i class="bi bi-pie-chart"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">Budget Alert</h6>
+                <p class="mb-1">You've reached 85% of your Dining Out budget for April.</p>
+                <span class="notification-time">5 hours ago</span>
+                <span class="badge bg-danger notification-badge">Budget</span>
+              </div>
+              <div class="notification-actions">
+                <button class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-check2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Security Notification -->
+        <div class="notification-item unread d-flex align-items-start" data-type="security">
+          <div class="notification-icon security">
+            <i class="bi bi-shield-lock"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">New Login Detected</h6>
+                <p class="mb-1">A new login was detected from New York, USA on April 4, 2025.</p>
+                <span class="notification-time">1 day ago</span>
+                <span class="badge bg-primary notification-badge">Security</span>
+              </div>
+              <div class="notification-actions">
+                <button class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-check2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- System Notification -->
+        <div class="notification-item d-flex align-items-start" data-type="system">
+          <div class="notification-icon system">
+            <i class="bi bi-info-circle"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">System Update</h6>
+                <p class="mb-1">Muzzy Tracker was updated to version 2.3.0 with new features and improvements.</p>
+                <span class="notification-time">3 days ago</span>
+                <span class="badge bg-secondary notification-badge">System</span>
+              </div>
+              <div class="notification-actions">
+                <button class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-check2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bill Notification -->
+        <div class="notification-item d-flex align-items-start" data-type="bill">
+          <div class="notification-icon bill">
+            <i class="bi bi-lightning-charge"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-1">Electric Bill Paid</h6>
+                <p class="mb-1">Your electric bill payment of $145.00 was processed successfully.</p>
+                <span class="notification-time">5 days ago</span>
+                <span class="badge bg-warning text-dark notification-badge">Bill</span>
+              </div>
+              <div class="notification-actions">
+                <button class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-check2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Filter buttons functionality
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const notificationItems = document.querySelectorAll('.notification-item');
+    
+    filterButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // Remove active class from all buttons
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to clicked button
+        this.classList.add('active');
+        
+        const filter = this.getAttribute('data-filter');
+        
+        // Show/hide notification items based on filter
+        notificationItems.forEach(item => {
+          if (filter === 'all') {
+            item.style.display = 'flex';
+          } else if (filter === 'unread') {
+            item.style.display = item.classList.contains('unread') ? 'flex' : 'none';
+          } else {
+            item.style.display = item.getAttribute('data-type') === filter ? 'flex' : 'none';
+          }
+        });
+      });
+    });
+    
+    // Mark as read functionality
+    const markReadButtons = document.querySelectorAll('.notification-actions button');
+    
+    markReadButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const notificationItem = this.closest('.notification-item');
+        notificationItem.classList.remove('unread');
+      });
+    });
+    
+    // Mark all as read functionality
+    const markAllReadButton = document.querySelector('.btn-outline-secondary');
+    
+    markAllReadButton.addEventListener('click', function() {
+      notificationItems.forEach(item => {
+        item.classList.remove('unread');
+      });
+    });
+  });
+</script>
+{% endblock %}

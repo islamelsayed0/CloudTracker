@@ -1,0 +1,287 @@
+{# 
+  settings.html - Settings Template for Muzzy Tracker
+  
+  This template extends the base.html template and provides the settings interface.
+  It includes:
+  1. Dark mode toggle
+  2. Sign out button
+  3. Profile settings
+  4. Notification preferences
+  5. Currency display options
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Settings-specific styles */
+  .settings-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .settings-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    margin-bottom: 1.5rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .card-header-custom {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--primary-green);
+  }
+  
+  .settings-section {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .settings-section:last-child {
+    border-bottom: none;
+  }
+  
+  .settings-title {
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Toggle Switch Styles */
+  .form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    margin-top: 0.25em;
+  }
+  
+  .form-switch .form-check-input:checked {
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+  }
+  
+  .form-switch .form-check-label {
+    padding-left: 0.5rem;
+  }
+  
+  /* Sign Out Button */
+  .btn-sign-out {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+  }
+  
+  .btn-sign-out:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+  }
+  
+  /* Form Styles */
+  .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-dark);
+  }
+  
+  .form-control:focus {
+    background-color: var(--input-bg);
+    color: var(--text-dark);
+  }
+  
+  .form-select {
+    background-color: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-dark);
+  }
+  
+  /* Dark Mode Icons */
+  .dark-mode-icon {
+    font-size: 1.5rem;
+    margin: 0 0.5rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container settings-container">
+  <h1 class="settings-title mb-4">Settings</h1>
+  
+  <!-- Dark Mode Toggle -->
+  <div class="settings-card">
+    <div class="card-header card-header-custom">
+      <h2 class="h5 mb-0">Appearance</h2>
+    </div>
+    <div class="card-body">
+      <div class="settings-section">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h3 class="h6 mb-1">Dark Mode</h3>
+            <p class="text-muted small mb-0">Switch between light and dark themes</p>
+          </div>
+          <div class="d-flex align-items-center">
+            <i class="bi bi-sun dark-mode-icon"></i>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="theme-toggle">
+              <label class="form-check-label" for="theme-toggle"></label>
+            </div>
+            <i class="bi bi-moon dark-mode-icon"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Account Settings -->
+  <div class="settings-card">
+    <div class="card-header card-header-custom">
+      <h2 class="h5 mb-0">Account Settings</h2>
+    </div>
+    <div class="card-body">
+      <!-- Profile Information -->
+      <div class="settings-section">
+        <h3 class="h6 mb-3">Profile Information</h3>
+        <form>
+          <div class="row mb-3">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <label for="firstName" class="form-label">First Name</label>
+              <input type="text" class="form-control" id="firstName" value="John">
+            </div>
+            <div class="col-md-6">
+              <label for="lastName" class="form-label">Last Name</label>
+              <input type="text" class="form-control" id="lastName" value="Doe">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" class="form-control" id="email" value="john.doe@example.com">
+          </div>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="button" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Password Change -->
+      <div class="settings-section">
+        <h3 class="h6 mb-3">Change Password</h3>
+        <form>
+          <div class="mb-3">
+            <label for="currentPassword" class="form-label">Current Password</label>
+            <input type="password" class="form-control" id="currentPassword">
+          </div>
+          <div class="mb-3">
+            <label for="newPassword" class="form-label">New Password</label>
+            <input type="password" class="form-control" id="newPassword">
+          </div>
+          <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+            <input type="password" class="form-control" id="confirmPassword">
+          </div>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="button" class="btn btn-primary">Update Password</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Preferences -->
+  <div class="settings-card">
+    <div class="card-header card-header-custom">
+      <h2 class="h5 mb-0">Preferences</h2>
+    </div>
+    <div class="card-body">
+      <!-- Currency Settings -->
+      <div class="settings-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h3 class="h6 mb-1">Currency</h3>
+            <p class="text-muted small mb-0">Select your preferred currency for display</p>
+          </div>
+          <div>
+            <select class="form-select">
+              <option selected>USD ($)</option>
+              <option>EUR (€)</option>
+              <option>GBP (£)</option>
+              <option>JPY (¥)</option>
+              <option>CAD (C$)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Notification Settings -->
+      <div class="settings-section">
+        <h3 class="h6 mb-3">Notifications</h3>
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+          <label class="form-check-label" for="emailNotifications">
+            Email Notifications
+          </label>
+          <div class="text-muted small">Receive emails about account activity and updates</div>
+        </div>
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="billReminders" checked>
+          <label class="form-check-label" for="billReminders">
+            Bill Payment Reminders
+          </label>
+          <div class="text-muted small">Get notified before bills are due</div>
+        </div>
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="budgetAlerts" checked>
+          <label class="form-check-label" for="budgetAlerts">
+            Budget Alerts
+          </label>
+          <div class="text-muted small">Receive alerts when you're approaching budget limits</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Data Management -->
+  <div class="settings-card">
+    <div class="card-header card-header-custom">
+      <h2 class="h5 mb-0">Data Management</h2>
+    </div>
+    <div class="card-body">
+      <div class="settings-section">
+        <h3 class="h6 mb-3">Export Data</h3>
+        <p class="text-muted small mb-3">Download your financial data in various formats</p>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-excel me-2"></i>Export as CSV
+          </button>
+          <button type="button" class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Export as PDF
+          </button>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h3 class="h6 mb-3">Account Deletion</h3>
+        <p class="text-muted small mb-3">Permanently delete your account and all associated data</p>
+        <button type="button" class="btn btn-outline-danger">
+          <i class="bi bi-trash me-2"></i>Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Sign Out Button -->
+  <div class="d-grid gap-2 mt-4">
+    <a href="{{ url_for('logout') }}" class="btn btn-sign-out">
+      <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include theme.js for dark mode functionality -->
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+{% endblock %}

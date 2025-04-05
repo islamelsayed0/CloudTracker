@@ -1,0 +1,1225 @@
+{# 
+  investments.html - Investment Accounts Page for Muzzy Tracker
+  
+  This template extends the base.html template and provides the investment accounts interface.
+  It includes:
+  1. Portfolio overview with current values
+  2. Asset allocation breakdown
+  3. Performance metrics and comparison to benchmarks
+  4. Individual holdings and their performance
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Investment Accounts{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Investment accounts page specific styles */
+  .page-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+  }
+  
+  .investment-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transition: all 0.3s;
+    margin-bottom: 2rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .investment-card:hover {
+    box-shadow: 0 8px 15px var(--shadow-color);
+  }
+  
+  .investment-card .card-header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--primary-green);
+  }
+  
+  .account-item {
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.2s;
+  }
+  
+  .account-item:last-child {
+    border-bottom: none;
+  }
+  
+  .account-item:hover {
+    background-color: rgba(11, 110, 79, 0.05);
+  }
+  
+  .account-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .account-details {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  
+  .account-balance {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--primary-green);
+  }
+  
+  .account-change {
+    font-size: 0.9rem;
+  }
+  
+  .account-change.positive {
+    color: var(--primary-green);
+  }
+  
+  .account-change.negative {
+    color: #dc3545;
+  }
+  
+  .account-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .institution-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  
+  .icon-vanguard { background-color: #B30000; }
+  .icon-fidelity { background-color: #569A31; }
+  .icon-schwab { background-color: #0033A0; }
+  .icon-robinhood { background-color: #00C805; }
+  .icon-other { background-color: #6C757D; }
+  
+  .summary-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .summary-card h5 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-green);
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-dark);
+  }
+  
+  .summary-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .summary-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--border-color);
+    color: var(--text-dark);
+  }
+  
+  .holdings-table {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .holding-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .holding-item:last-child {
+    border-bottom: none;
+  }
+  
+  .holding-symbol {
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+  
+  .holding-name {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  
+  .holding-value {
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+  
+  .holding-change {
+    font-weight: 600;
+  }
+  
+  .holding-change.positive {
+    color: var(--primary-green);
+  }
+  
+  .holding-change.negative {
+    color: #dc3545;
+  }
+  
+  .account-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-item {
+    flex: 1;
+    background-color: var(--sidebar-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    margin-bottom: 0.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  
+  .performance-chart {
+    height: 250px;
+    margin-bottom: 1rem;
+  }
+  
+  .allocation-chart {
+    height: 250px;
+    margin-bottom: 1rem;
+  }
+  
+  .benchmark-comparison {
+    background-color: var(--sidebar-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .benchmark-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .benchmark-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .benchmark-name {
+    font-weight: 500;
+    color: var(--text-dark);
+  }
+  
+  .benchmark-value {
+    font-weight: 600;
+  }
+  
+  .benchmark-value.outperform {
+    color: var(--primary-green);
+  }
+  
+  .benchmark-value.underperform {
+    color: #dc3545;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h1 class="mb-0">Investment Accounts</h1>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <button class="btn btn-primary" id="addInvestmentAccount">
+          <i class="bi bi-plus"></i> Add Investment Account
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-lg-8">
+      <!-- Investment Accounts List -->
+      <div class="investment-card card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>All Investment Accounts</div>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#" id="sortByName">Sort by Name</a></li>
+              <li><a class="dropdown-item" href="#" id="sortByValue">Sort by Value</a></li>
+              <li><a class="dropdown-item" href="#" id="sortByPerformance">Sort by Performance</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" id="showInactive">Show Inactive Accounts</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <!-- Account Item 1 -->
+          <div class="account-item" data-bs-toggle="collapse" data-bs-target="#accountDetails1">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="institution-icon icon-vanguard">
+                    <i class="bi bi-briefcase"></i>
+                  </div>
+                  <div>
+                    <div class="account-name">Vanguard 401(k)</div>
+                    <div class="account-details">
+                      <span>Vanguard</span>
+                      <span class="ms-2">Retirement</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="account-balance">$125,750.45</div>
+                <div class="account-change positive">+$1,250.75 (1.0%)</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="account-actions">
+                  <button class="btn btn-sm btn-outline-secondary edit-account">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-account">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary toggle-details">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Account Details 1 -->
+          <div class="collapse" id="accountDetails1">
+            <div class="p-3 bg-light">
+              <div class="account-stats">
+                <div class="stat-item">
+                  <div class="stat-value">$125,750</div>
+                  <div class="stat-label">Current Value</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">8.5%</div>
+                  <div class="stat-label">YTD Return</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">12.3%</div>
+                  <div class="stat-label">1-Year Return</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">9.7%</div>
+                  <div class="stat-label">5-Year Avg.</div>
+                </div>
+              </div>
+              
+              <div class="performance-chart">
+                <canvas id="performanceChart1"></canvas>
+              </div>
+              
+              <div class="benchmark-comparison mb-3">
+                <h6 class="mb-2">Benchmark Comparison (YTD)</h6>
+                <div class="benchmark-item">
+                  <span class="benchmark-name">S&P 500</span>
+                  <span class="benchmark-value underperform">8.5% vs 9.2%</span>
+                </div>
+                <div class="benchmark-item">
+                  <span class="benchmark-name">Total Bond Market</span>
+                  <span class="benchmark-value outperform">8.5% vs 2.1%</span>
+                </div>
+                <div class="benchmark-item">
+                  <span class="benchmark-name">Target Date 2045</span>
+                  <span class="benchmark-value outperform">8.5% vs 7.8%</span>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <h6 class="mb-2">Asset Allocation</h6>
+                  <div class="allocation-chart">
+                    <canvas id="allocationChart1"></canvas>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="mb-2">Sector Breakdown</h6>
+                  <div class="allocation-chart">
+                    <canvas id="sectorChart1"></canvas>
+                  </div>
+                </div>
+              </div>
+              
+              <h6 class="mb-2">Top Holdings</h6>
+              <div class="holdings-table">
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">VTSAX</div>
+                      <div class="holding-name">Vanguard Total Stock Market Index</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$62,875.23</div>
+                      <div class="holding-change positive">+1.2%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">VBTLX</div>
+                      <div class="holding-name">Vanguard Total Bond Market Index</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$25,150.09</div>
+                      <div class="holding-change positive">+0.3%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">VTIAX</div>
+                      <div class="holding-name">Vanguard Total International Stock Index</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$18,862.57</div>
+                      <div class="holding-change negative">-0.5%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">VGSLX</div>
+                      <div class="holding-name">Vanguard Real Estate Index</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$12,575.05</div>
+                      <div class="holding-change positive">+0.8%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">VMFXX</div>
+                      <div class="holding-name">Vanguard Federal Money Market</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$6,287.51</div>
+                      <div class="holding-change positive">+0.01%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid mt-3">
+                <a href="#" class="btn btn-outline-primary btn-sm">
+                  View All Holdings
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Account Item 2 -->
+          <div class="account-item" data-bs-toggle="collapse" data-bs-target="#accountDetails2">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="institution-icon icon-fidelity">
+                    <i class="bi bi-briefcase"></i>
+                  </div>
+                  <div>
+                    <div class="account-name">Fidelity Roth IRA</div>
+                    <div class="account-details">
+                      <span>Fidelity</span>
+                      <span class="ms-2">Retirement</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="account-balance">$42,350.78</div>
+                <div class="account-change positive">+$325.45 (0.8%)</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="account-actions">
+                  <button class="btn btn-sm btn-outline-secondary edit-account">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-account">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary toggle-details">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Account Details 2 -->
+          <div class="collapse" id="accountDetails2">
+            <div class="p-3 bg-light">
+              <div class="account-stats">
+                <div class="stat-item">
+                  <div class="stat-value">$42,351</div>
+                  <div class="stat-label">Current Value</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">7.2%</div>
+                  <div class="stat-label">YTD Return</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">10.5%</div>
+                  <div class="stat-label">1-Year Return</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">8.9%</div>
+                  <div class="stat-label">5-Year Avg.</div>
+                </div>
+              </div>
+              
+              <div class="performance-chart">
+                <canvas id="performanceChart2"></canvas>
+              </div>
+              
+              <div class="benchmark-comparison mb-3">
+                <h6 class="mb-2">Benchmark Comparison (YTD)</h6>
+                <div class="benchmark-item">
+                  <span class="benchmark-name">S&P 500</span>
+                  <span class="benchmark-value underperform">7.2% vs 9.2%</span>
+                </div>
+                <div class="benchmark-item">
+                  <span class="benchmark-name">Total Bond Market</span>
+                  <span class="benchmark-value outperform">7.2% vs 2.1%</span>
+                </div>
+                <div class="benchmark-item">
+                  <span class="benchmark-name">Target Date 2045</span>
+                  <span class="benchmark-value underperform">7.2% vs 7.8%</span>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <h6 class="mb-2">Asset Allocation</h6>
+                  <div class="allocation-chart">
+                    <canvas id="allocationChart2"></canvas>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="mb-2">Sector Breakdown</h6>
+                  <div class="allocation-chart">
+                    <canvas id="sectorChart2"></canvas>
+                  </div>
+                </div>
+              </div>
+              
+              <h6 class="mb-2">Top Holdings</h6>
+              <div class="holdings-table">
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">FXAIX</div>
+                      <div class="holding-name">Fidelity 500 Index Fund</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$16,940.31</div>
+                      <div class="holding-change positive">+1.1%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">FSPSX</div>
+                      <div class="holding-name">Fidelity International Index Fund</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$8,470.16</div>
+                      <div class="holding-change negative">-0.3%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">FSMDX</div>
+                      <div class="holding-name">Fidelity Mid Cap Index Fund</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$6,352.62</div>
+                      <div class="holding-change positive">+0.7%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">FSSNX</div>
+                      <div class="holding-name">Fidelity Small Cap Index Fund</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$4,235.08</div>
+                      <div class="holding-change positive">+0.5%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">FXNAX</div>
+                      <div class="holding-name">Fidelity U.S. Bond Index Fund</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$6,352.62</div>
+                      <div class="holding-change positive">+0.2%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid mt-3">
+                <a href="#" class="btn btn-outline-primary btn-sm">
+                  View All Holdings
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Account Item 3 -->
+          <div class="account-item" data-bs-toggle="collapse" data-bs-target="#accountDetails3">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="institution-icon icon-robinhood">
+                    <i class="bi bi-briefcase"></i>
+                  </div>
+                  <div>
+                    <div class="account-name">Robinhood Brokerage</div>
+                    <div class="account-details">
+                      <span>Robinhood</span>
+                      <span class="ms-2">Taxable</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="account-balance">$15,875.32</div>
+                <div class="account-change negative">-$125.45 (-0.8%)</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="account-actions">
+                  <button class="btn btn-sm btn-outline-secondary edit-account">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger delete-account">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary toggle-details">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Account Details 3 -->
+          <div class="collapse" id="accountDetails3">
+            <div class="p-3 bg-light">
+              <div class="account-stats">
+                <div class="stat-item">
+                  <div class="stat-value">$15,875</div>
+                  <div class="stat-label">Current Value</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">-2.5%</div>
+                  <div class="stat-label">YTD Return</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">5.2%</div>
+                  <div class="stat-label">1-Year Return</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">7.1%</div>
+                  <div class="stat-label">3-Year Avg.</div>
+                </div>
+              </div>
+              
+              <div class="performance-chart">
+                <canvas id="performanceChart3"></canvas>
+              </div>
+              
+              <div class="benchmark-comparison mb-3">
+                <h6 class="mb-2">Benchmark Comparison (YTD)</h6>
+                <div class="benchmark-item">
+                  <span class="benchmark-name">S&P 500</span>
+                  <span class="benchmark-value underperform">-2.5% vs 9.2%</span>
+                </div>
+                <div class="benchmark-item">
+                  <span class="benchmark-name">NASDAQ</span>
+                  <span class="benchmark-value underperform">-2.5% vs 7.5%</span>
+                </div>
+                <div class="benchmark-item">
+                  <span class="benchmark-name">Russell 2000</span>
+                  <span class="benchmark-value underperform">-2.5% vs 4.3%</span>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <h6 class="mb-2">Asset Allocation</h6>
+                  <div class="allocation-chart">
+                    <canvas id="allocationChart3"></canvas>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="mb-2">Sector Breakdown</h6>
+                  <div class="allocation-chart">
+                    <canvas id="sectorChart3"></canvas>
+                  </div>
+                </div>
+              </div>
+              
+              <h6 class="mb-2">Top Holdings</h6>
+              <div class="holdings-table">
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">AAPL</div>
+                      <div class="holding-name">Apple Inc.</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$3,175.06</div>
+                      <div class="holding-change positive">+1.5%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">MSFT</div>
+                      <div class="holding-name">Microsoft Corporation</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$2,381.30</div>
+                      <div class="holding-change positive">+0.8%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">TSLA</div>
+                      <div class="holding-name">Tesla, Inc.</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$1,587.53</div>
+                      <div class="holding-change negative">-2.3%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">AMZN</div>
+                      <div class="holding-name">Amazon.com, Inc.</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$1,587.53</div>
+                      <div class="holding-change negative">-1.2%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="holding-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="holding-symbol">NVDA</div>
+                      <div class="holding-name">NVIDIA Corporation</div>
+                    </div>
+                    <div class="text-end">
+                      <div class="holding-value">$1,587.53</div>
+                      <div class="holding-change positive">+2.1%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid mt-3">
+                <a href="#" class="btn btn-outline-primary btn-sm">
+                  View All Holdings
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <!-- Investment Summary -->
+      <div class="summary-card card">
+        <h5>Investment Summary</h5>
+        <div class="summary-item">
+          <span>Vanguard 401(k)</span>
+          <span class="text-success">$125,750.45</span>
+        </div>
+        <div class="summary-item">
+          <span>Fidelity Roth IRA</span>
+          <span class="text-success">$42,350.78</span>
+        </div>
+        <div class="summary-item">
+          <span>Robinhood Brokerage</span>
+          <span class="text-success">$15,875.32</span>
+        </div>
+        <div class="summary-total">
+          <div class="d-flex justify-content-between">
+            <span>Total Investments</span>
+            <span class="text-success">$183,976.55</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Asset Allocation -->
+      <div class="summary-card card">
+        <h5>Overall Asset Allocation</h5>
+        <div style="height: 250px;">
+          <canvas id="overallAllocationChart"></canvas>
+        </div>
+        <div class="mt-3 small text-muted">
+          <i class="bi bi-info-circle me-1"></i> A diversified portfolio helps reduce risk while maintaining potential for growth.
+        </div>
+      </div>
+      
+      <!-- Performance Summary -->
+      <div class="summary-card card">
+        <h5>Performance Summary</h5>
+        <div class="summary-item">
+          <span>Today's Change</span>
+          <span class="text-success">+$1,450.75 (0.8%)</span>
+        </div>
+        <div class="summary-item">
+          <span>YTD Return</span>
+          <span class="text-success">+$12,875.32 (7.5%)</span>
+        </div>
+        <div class="summary-item">
+          <span>1-Year Return</span>
+          <span class="text-success">+$20,450.75 (12.5%)</span>
+        </div>
+        <div class="summary-item">
+          <span>5-Year Return</span>
+          <span class="text-success">+$65,750.45 (55.6%)</span>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="summary-card card">
+        <h5>Quick Actions</h5>
+        <div class="d-grid gap-2">
+          <button class="btn btn-outline-primary btn-sm" id="addNewAccount">
+            <i class="bi bi-plus-circle"></i> Add Investment Account
+          </button>
+          <button class="btn btn-outline-primary btn-sm" id="rebalancePortfolio">
+            <i class="bi bi-arrow-repeat"></i> Rebalance Portfolio
+          </button>
+          <button class="btn btn-outline-primary btn-sm" id="downloadStatements">
+            <i class="bi bi-file-earmark-text"></i> Download Statements
+          </button>
+          <button class="btn btn-outline-primary btn-sm" id="retirementCalculator">
+            <i class="bi bi-calculator"></i> Retirement Calculator
+          </button>
+        </div>
+      </div>
+      
+      <!-- Tips -->
+      <div class="card bg-light border-0 p-3">
+        <div class="card-body">
+          <h6 class="card-title"><i class="bi bi-lightbulb text-warning me-2"></i>Investment Tips</h6>
+          <p class="card-text small">Consider maxing out tax-advantaged accounts like 401(k)s and IRAs before investing in taxable accounts.</p>
+          <p class="card-text small mb-0">Rebalancing your portfolio periodically helps maintain your desired asset allocation and can potentially improve returns while managing risk.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Overall Asset Allocation Chart
+    const allocationCtx = document.getElementById('overallAllocationChart');
+    if (allocationCtx) {
+      new Chart(allocationCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['US Stocks', 'International Stocks', 'Bonds', 'Real Estate', 'Cash'],
+          datasets: [{
+            data: [110385.93, 27596.48, 36795.31, 5519.30, 3679.53],
+            backgroundColor: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: $${value.toLocaleString()} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Performance Charts
+    const performanceOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          ticks: {
+            callback: function(value) {
+              return '$' + value.toLocaleString();
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    };
+    
+    // Performance Chart 1
+    const performanceCtx1 = document.getElementById('performanceChart1');
+    if (performanceCtx1) {
+      new Chart(performanceCtx1, {
+        type: 'line',
+        data: {
+          labels: ['Apr 2024', 'Jun 2024', 'Aug 2024', 'Oct 2024', 'Dec 2024', 'Feb 2025', 'Apr 2025'],
+          datasets: [{
+            label: 'Account Value',
+            data: [112000, 115500, 118000, 116500, 120000, 123500, 125750],
+            borderColor: '#B30000',
+            backgroundColor: 'rgba(179, 0, 0, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: performanceOptions
+      });
+    }
+    
+    // Performance Chart 2
+    const performanceCtx2 = document.getElementById('performanceChart2');
+    if (performanceCtx2) {
+      new Chart(performanceCtx2, {
+        type: 'line',
+        data: {
+          labels: ['Apr 2024', 'Jun 2024', 'Aug 2024', 'Oct 2024', 'Dec 2024', 'Feb 2025', 'Apr 2025'],
+          datasets: [{
+            label: 'Account Value',
+            data: [38500, 39200, 40100, 39800, 41200, 41900, 42350],
+            borderColor: '#569A31',
+            backgroundColor: 'rgba(86, 154, 49, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: performanceOptions
+      });
+    }
+    
+    // Performance Chart 3
+    const performanceCtx3 = document.getElementById('performanceChart3');
+    if (performanceCtx3) {
+      new Chart(performanceCtx3, {
+        type: 'line',
+        data: {
+          labels: ['Apr 2024', 'Jun 2024', 'Aug 2024', 'Oct 2024', 'Dec 2024', 'Feb 2025', 'Apr 2025'],
+          datasets: [{
+            label: 'Account Value',
+            data: [16500, 17200, 18100, 17500, 16800, 16200, 15875],
+            borderColor: '#00C805',
+            backgroundColor: 'rgba(0, 200, 5, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: performanceOptions
+      });
+    }
+    
+    // Asset Allocation Charts
+    const allocationOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right'
+        }
+      }
+    };
+    
+    // Allocation Chart 1
+    const allocationCtx1 = document.getElementById('allocationChart1');
+    if (allocationCtx1) {
+      new Chart(allocationCtx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['US Stocks', 'International Stocks', 'Bonds', 'Real Estate', 'Cash'],
+          datasets: [{
+            data: [50, 15, 20, 10, 5],
+            backgroundColor: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F'],
+            borderWidth: 0
+          }]
+        },
+        options: allocationOptions
+      });
+    }
+    
+    // Allocation Chart 2
+    const allocationCtx2 = document.getElementById('allocationChart2');
+    if (allocationCtx2) {
+      new Chart(allocationCtx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['US Stocks', 'International Stocks', 'Bonds', 'Real Estate', 'Cash'],
+          datasets: [{
+            data: [40, 20, 30, 5, 5],
+            backgroundColor: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F'],
+            borderWidth: 0
+          }]
+        },
+        options: allocationOptions
+      });
+    }
+    
+    // Allocation Chart 3
+    const allocationCtx3 = document.getElementById('allocationChart3');
+    if (allocationCtx3) {
+      new Chart(allocationCtx3, {
+        type: 'doughnut',
+        data: {
+          labels: ['US Stocks', 'International Stocks', 'Bonds', 'Cash'],
+          datasets: [{
+            data: [80, 10, 5, 5],
+            backgroundColor: ['#4E79A7', '#F28E2B', '#E15759', '#59A14F'],
+            borderWidth: 0
+          }]
+        },
+        options: allocationOptions
+      });
+    }
+    
+    // Sector Charts
+    const sectorOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right'
+        }
+      }
+    };
+    
+    // Sector Chart 1
+    const sectorCtx1 = document.getElementById('sectorChart1');
+    if (sectorCtx1) {
+      new Chart(sectorCtx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Technology', 'Financial', 'Healthcare', 'Consumer', 'Industrial', 'Other'],
+          datasets: [{
+            data: [25, 15, 15, 20, 15, 10],
+            backgroundColor: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#B07AA1'],
+            borderWidth: 0
+          }]
+        },
+        options: sectorOptions
+      });
+    }
+    
+    // Sector Chart 2
+    const sectorCtx2 = document.getElementById('sectorChart2');
+    if (sectorCtx2) {
+      new Chart(sectorCtx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['Technology', 'Financial', 'Healthcare', 'Consumer', 'Industrial', 'Other'],
+          datasets: [{
+            data: [30, 15, 20, 15, 10, 10],
+            backgroundColor: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#B07AA1'],
+            borderWidth: 0
+          }]
+        },
+        options: sectorOptions
+      });
+    }
+    
+    // Sector Chart 3
+    const sectorCtx3 = document.getElementById('sectorChart3');
+    if (sectorCtx3) {
+      new Chart(sectorCtx3, {
+        type: 'doughnut',
+        data: {
+          labels: ['Technology', 'Financial', 'Healthcare', 'Consumer', 'Industrial'],
+          datasets: [{
+            data: [50, 10, 15, 15, 10],
+            backgroundColor: ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F'],
+            borderWidth: 0
+          }]
+        },
+        options: sectorOptions
+      });
+    }
+    
+    // Toggle account details
+    const accountItems = document.querySelectorAll('.account-item');
+    accountItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const detailsButton = this.querySelector('.account-actions .toggle-details i');
+        if (detailsButton.classList.contains('bi-chevron-down')) {
+          detailsButton.classList.remove('bi-chevron-down');
+          detailsButton.classList.add('bi-chevron-up');
+        } else {
+          detailsButton.classList.remove('bi-chevron-up');
+          detailsButton.classList.add('bi-chevron-down');
+        }
+      });
+    });
+    
+    // Add investment account functionality
+    const addButtons = document.querySelectorAll('#addInvestmentAccount, #addNewAccount');
+    addButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // In a real application, this would open a modal to add an investment account
+        alert('Add investment account functionality would be implemented here.');
+      });
+    });
+    
+    // Edit account functionality
+    const editButtons = document.querySelectorAll('.edit-account');
+    editButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // In a real application, this would open a modal to edit the account
+        alert('Edit investment account functionality would be implemented here.');
+      });
+    });
+    
+    // Delete account functionality
+    const deleteButtons = document.querySelectorAll('.delete-account');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // In a real application, this would open a confirmation dialog
+        alert('Delete investment account functionality would be implemented here.');
+      });
+    });
+    
+    // Rebalance portfolio functionality
+    document.getElementById('rebalancePortfolio').addEventListener('click', function() {
+      // In a real application, this would open a rebalance tool
+      alert('Rebalance portfolio functionality would be implemented here.');
+    });
+    
+    // Download statements functionality
+    document.getElementById('downloadStatements').addEventListener('click', function() {
+      // In a real application, this would allow downloading statements
+      alert('Download statements functionality would be implemented here.');
+    });
+    
+    // Retirement calculator functionality
+    document.getElementById('retirementCalculator').addEventListener('click', function() {
+      // In a real application, this would open a retirement calculator
+      alert('Retirement calculator functionality would be implemented here.');
+    });
+    
+    // Sort functionality
+    document.getElementById('sortByName').addEventListener('click', function(e) {
+      e.preventDefault();
+      // In a real application, this would sort the accounts by name
+      alert('Sort by name functionality would be implemented here.');
+    });
+    
+    document.getElementById('sortByValue').addEventListener('click', function(e) {
+      e.preventDefault();
+      // In a real application, this would sort the accounts by value
+      alert('Sort by value functionality would be implemented here.');
+    });
+    
+    document.getElementById('sortByPerformance').addEventListener('click', function(e) {
+      e.preventDefault();
+      // In a real application, this would sort the accounts by performance
+      alert('Sort by performance functionality would be implemented here.');
+    });
+    
+    // Show inactive accounts functionality
+    document.getElementById('showInactive').addEventListener('click', function(e) {
+      e.preventDefault();
+      // In a real application, this would show inactive accounts
+      alert('Show inactive accounts functionality would be implemented here.');
+    });
+  });
+</script>
+{% endblock %}

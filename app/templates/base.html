@@ -13,7 +13,7 @@
 #}
 
 <!DOCTYPE html>
-<html lang="en"> {# Specify English language for accessibility #}
+<html lang="en" id="html-root"> {# Specify English language for accessibility #}
 <head>
     {# Meta tags for character encoding and responsive design #}
     <meta charset="UTF-8">
@@ -128,6 +128,9 @@
     
     <!-- Custom JavaScript - Application-specific functionality -->
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    
+    <!-- Theme Switching Functionality -->
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     
     {# 
       Extra JavaScript block for child templates

@@ -1,0 +1,835 @@
+{# 
+  bank.html - Bank Accounts Page for Muzzy Tracker
+  
+  This template extends the base.html template and provides the bank accounts interface.
+  It includes:
+  1. List of all bank accounts with current balances
+  2. Account details and transaction history
+  3. Account management options (add, edit, remove)
+  4. Balance trends visualization
+#}
+
+{% extends "base.html" %}
+
+{% block title %}Muzzy Tracker - Bank Accounts{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Bank accounts page specific styles */
+  .page-header {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 2rem;
+  }
+  
+  .account-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    margin-bottom: 2rem;
+  }
+  
+  .account-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .account-card .card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+    color: var(--primary-green);
+  }
+  
+  .account-item {
+    padding: 1.25rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+  }
+  
+  .account-item:last-child {
+    border-bottom: none;
+  }
+  
+  .account-item:hover {
+    background-color: rgba(11, 110, 79, 0.05);
+  }
+  
+  .account-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .account-details {
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+  
+  .account-balance {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--primary-green);
+  }
+  
+  .account-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .bank-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  
+  .icon-chase { background-color: #117ACA; }
+  .icon-bofa { background-color: #E11B3C; }
+  .icon-wells-fargo { background-color: #D71E28; }
+  .icon-citi { background-color: #0088CE; }
+  .icon-other { background-color: #6C757D; }
+  
+  .summary-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+  }
+  
+  .summary-card h5 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-green);
+  }
+  
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .summary-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .summary-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid #dee2e6;
+  }
+  
+  .account-transactions {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .transaction-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .transaction-item:last-child {
+    border-bottom: none;
+  }
+  
+  .transaction-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+  
+  .transaction-description {
+    font-weight: 500;
+  }
+  
+  .transaction-amount {
+    font-weight: 600;
+  }
+  
+  .transaction-amount.positive {
+    color: var(--primary-green);
+  }
+  
+  .transaction-amount.negative {
+    color: #dc3545;
+  }
+  
+  .account-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-item {
+    flex: 1;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    margin-bottom: 0.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+  
+  .balance-chart {
+    height: 250px;
+    margin-bottom: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h1 class="mb-0">Bank Accounts</h1>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <button class="btn btn-primary">
+          <i class="bi bi-plus"></i> Add Bank Account
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-lg-8">
+      <!-- Bank Accounts List -->
+      <div class="account-card card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>All Bank Accounts</div>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-link text-muted" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="#">Sort by Name</a></li>
+              <li><a class="dropdown-item" href="#">Sort by Balance</a></li>
+              <li><a class="dropdown-item" href="#">Sort by Bank</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#">Show Inactive Accounts</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <!-- Account Item 1 -->
+          <div class="account-item" data-bs-toggle="collapse" data-bs-target="#accountDetails1">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="bank-icon icon-chase">
+                    <i class="bi bi-bank"></i>
+                  </div>
+                  <div>
+                    <div class="account-name">Chase Checking</div>
+                    <div class="account-details">
+                      <span>Chase Bank</span>
+                      <span class="ms-2">•••• 4567</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="account-balance">$3,245.67</div>
+                <div class="account-details">Available Balance</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="account-actions">
+                  <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Account Details 1 -->
+          <div class="collapse" id="accountDetails1">
+            <div class="p-3 bg-light">
+              <div class="account-stats">
+                <div class="stat-item">
+                  <div class="stat-value">$3,245.67</div>
+                  <div class="stat-label">Current Balance</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$4,125.89</div>
+                  <div class="stat-label">Average Balance</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$1,250.00</div>
+                  <div class="stat-label">Monthly Deposits</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$875.45</div>
+                  <div class="stat-label">Monthly Withdrawals</div>
+                </div>
+              </div>
+              
+              <div class="balance-chart">
+                <canvas id="balanceChart1"></canvas>
+              </div>
+              
+              <h6 class="mb-3">Recent Transactions</h6>
+              <div class="account-transactions">
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Payroll Deposit</div>
+                      <div class="transaction-date">Apr 1, 2025</div>
+                    </div>
+                    <div class="transaction-amount positive">+$1,250.00</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Rent Payment</div>
+                      <div class="transaction-date">Apr 1, 2025</div>
+                    </div>
+                    <div class="transaction-amount negative">-$850.00</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Grocery Store</div>
+                      <div class="transaction-date">Mar 28, 2025</div>
+                    </div>
+                    <div class="transaction-amount negative">-$125.45</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">ATM Withdrawal</div>
+                      <div class="transaction-date">Mar 25, 2025</div>
+                    </div>
+                    <div class="transaction-amount negative">-$100.00</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Electric Bill</div>
+                      <div class="transaction-date">Mar 22, 2025</div>
+                    </div>
+                    <div class="transaction-amount negative">-$85.32</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid mt-3">
+                <a href="{{ url_for('transactions') }}" class="btn btn-outline-primary btn-sm">
+                  View All Transactions
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Account Item 2 -->
+          <div class="account-item" data-bs-toggle="collapse" data-bs-target="#accountDetails2">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="bank-icon icon-chase">
+                    <i class="bi bi-bank"></i>
+                  </div>
+                  <div>
+                    <div class="account-name">Chase Savings</div>
+                    <div class="account-details">
+                      <span>Chase Bank</span>
+                      <span class="ms-2">•••• 7890</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="account-balance">$12,500.00</div>
+                <div class="account-details">Available Balance</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="account-actions">
+                  <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Account Details 2 -->
+          <div class="collapse" id="accountDetails2">
+            <div class="p-3 bg-light">
+              <div class="account-stats">
+                <div class="stat-item">
+                  <div class="stat-value">$12,500.00</div>
+                  <div class="stat-label">Current Balance</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$11,875.45</div>
+                  <div class="stat-label">Average Balance</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$750.00</div>
+                  <div class="stat-label">Monthly Deposits</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$0.00</div>
+                  <div class="stat-label">Monthly Withdrawals</div>
+                </div>
+              </div>
+              
+              <div class="balance-chart">
+                <canvas id="balanceChart2"></canvas>
+              </div>
+              
+              <h6 class="mb-3">Recent Transactions</h6>
+              <div class="account-transactions">
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Transfer from Checking</div>
+                      <div class="transaction-date">Apr 1, 2025</div>
+                    </div>
+                    <div class="transaction-amount positive">+$750.00</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Interest Payment</div>
+                      <div class="transaction-date">Mar 31, 2025</div>
+                    </div>
+                    <div class="transaction-amount positive">+$5.21</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Transfer from Checking</div>
+                      <div class="transaction-date">Mar 1, 2025</div>
+                    </div>
+                    <div class="transaction-amount positive">+$750.00</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Interest Payment</div>
+                      <div class="transaction-date">Feb 28, 2025</div>
+                    </div>
+                    <div class="transaction-amount positive">+$4.89</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid mt-3">
+                <a href="{{ url_for('transactions') }}" class="btn btn-outline-primary btn-sm">
+                  View All Transactions
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Account Item 3 -->
+          <div class="account-item" data-bs-toggle="collapse" data-bs-target="#accountDetails3">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                  <div class="bank-icon icon-bofa">
+                    <i class="bi bi-bank"></i>
+                  </div>
+                  <div>
+                    <div class="account-name">Bank of America Checking</div>
+                    <div class="account-details">
+                      <span>Bank of America</span>
+                      <span class="ms-2">•••• 1234</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 text-md-center">
+                <div class="account-balance">$1,875.32</div>
+                <div class="account-details">Available Balance</div>
+              </div>
+              <div class="col-md-3 text-md-end">
+                <div class="account-actions">
+                  <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Account Details 3 -->
+          <div class="collapse" id="accountDetails3">
+            <div class="p-3 bg-light">
+              <div class="account-stats">
+                <div class="stat-item">
+                  <div class="stat-value">$1,875.32</div>
+                  <div class="stat-label">Current Balance</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$2,125.67</div>
+                  <div class="stat-label">Average Balance</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$500.00</div>
+                  <div class="stat-label">Monthly Deposits</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">$325.45</div>
+                  <div class="stat-label">Monthly Withdrawals</div>
+                </div>
+              </div>
+              
+              <div class="balance-chart">
+                <canvas id="balanceChart3"></canvas>
+              </div>
+              
+              <h6 class="mb-3">Recent Transactions</h6>
+              <div class="account-transactions">
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Side Gig Payment</div>
+                      <div class="transaction-date">Apr 2, 2025</div>
+                    </div>
+                    <div class="transaction-amount positive">+$500.00</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Internet Bill</div>
+                      <div class="transaction-date">Apr 1, 2025</div>
+                    </div>
+                    <div class="transaction-amount negative">-$75.99</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Phone Bill</div>
+                      <div class="transaction-date">Mar 28, 2025</div>
+                    </div>
+                    <div class="transaction-amount negative">-$89.99</div>
+                  </div>
+                </div>
+                <div class="transaction-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <div class="transaction-description">Grocery Store</div>
+                      <div class="transaction-date">Mar 25, 2025</div>
+                    </div>
+                    <div class="transaction-amount negative">-$159.47</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="d-grid mt-3">
+                <a href="{{ url_for('transactions') }}" class="btn btn-outline-primary btn-sm">
+                  View All Transactions
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <!-- Account Summary -->
+      <div class="summary-card card">
+        <h5>Account Summary</h5>
+        <div class="summary-item">
+          <span>Chase Checking</span>
+          <span>$3,245.67</span>
+        </div>
+        <div class="summary-item">
+          <span>Chase Savings</span>
+          <span>$12,500.00</span>
+        </div>
+        <div class="summary-item">
+          <span>Bank of America Checking</span>
+          <span>$1,875.32</span>
+        </div>
+        <div class="summary-total">
+          <div class="d-flex justify-content-between">
+            <span>Total Bank Accounts</span>
+            <span>$17,620.99</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Account Distribution -->
+      <div class="summary-card card">
+        <h5>Account Distribution</h5>
+        <div style="height: 250px;">
+          <canvas id="accountDistributionChart"></canvas>
+        </div>
+        <div class="mt-3 small text-muted">
+          <i class="bi bi-info-circle me-1"></i> Distribution of funds across your bank accounts
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="summary-card card">
+        <h5>Quick Actions</h5>
+        <div class="d-grid gap-2">
+          <button class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-plus-circle"></i> Add Bank Account
+          </button>
+          <button class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-arrow-left-right"></i> Transfer Between Accounts
+          </button>
+          <button class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-file-earmark-text"></i> Download Statements
+          </button>
+          <button class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-shield-check"></i> Security Settings
+          </button>
+        </div>
+      </div>
+      
+      <!-- Tips -->
+      <div class="card bg-light border-0 p-3">
+        <div class="card-body">
+          <h6 class="card-title"><i class="bi bi-lightbulb text-warning me-2"></i>Banking Tips</h6>
+          <p class="card-text small">Consider setting up automatic transfers to your savings account on payday to build your emergency fund.</p>
+          <p class="card-text small mb-0">Many banks offer higher interest rates on savings if you maintain a minimum balance or set up direct deposit.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Account Distribution Chart
+    const distributionCtx = document.getElementById('accountDistributionChart');
+    if (distributionCtx) {
+      new Chart(distributionCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Chase Checking', 'Chase Savings', 'Bank of America Checking'],
+          datasets: [{
+            data: [3245.67, 12500.00, 1875.32],
+            backgroundColor: ['#117ACA', '#0D5E94', '#E11B3C'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+    
+    // Balance Charts
+    const balanceOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          beginAtZero: false
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    };
+    
+    // Balance Chart 1
+    const balanceCtx1 = document.getElementById('balanceChart1');
+    if (balanceCtx1) {
+      new Chart(balanceCtx1, {
+        type: 'line',
+        data: {
+          labels: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+          datasets: [{
+            label: 'Balance',
+            data: [2850, 3100, 2950, 3200, 3050, 3245.67],
+            borderColor: '#117ACA',
+            backgroundColor: 'rgba(17, 122, 202, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: balanceOptions
+      });
+    }
+    
+    // Balance Chart 2
+    const balanceCtx2 = document.getElementById('balanceChart2');
+    if (balanceCtx2) {
+      new Chart(balanceCtx2, {
+        type: 'line',
+        data: {
+          labels: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+          datasets: [{
+            label: 'Balance',
+            data: [9500, 10250, 11000, 11750, 12000, 12500],
+            borderColor: '#0D5E94',
+            backgroundColor: 'rgba(13, 94, 148, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: balanceOptions
+      });
+    }
+    
+    // Balance Chart 3
+    const balanceCtx3 = document.getElementById('balanceChart3');
+    if (balanceCtx3) {
+      new Chart(balanceCtx3, {
+        type: 'line',
+        data: {
+          labels: ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+          datasets: [{
+            label: 'Balance',
+            data: [1950, 1850, 2100, 1950, 2000, 1875.32],
+            borderColor: '#E11B3C',
+            backgroundColor: 'rgba(225, 27, 60, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: balanceOptions
+      });
+    }
+    
+    // Toggle account details
+    const accountItems = document.querySelectorAll('.account-item');
+    accountItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const detailsButton = this.querySelector('.account-actions .btn-outline-primary i');
+        if (detailsButton.classList.contains('bi-chevron-down')) {
+          detailsButton.classList.remove('bi-chevron-down');
+          detailsButton.classList.add('bi-chevron-up');
+        } else {
+          detailsButton.classList.remove('bi-chevron-up');
+          detailsButton.classList.add('bi-chevron-down');
+        }
+      });
+    });
+    
+    // Add bank account functionality
+    const addButtons = document.querySelectorAll('.btn-primary, .summary-card .btn-outline-primary:first-child');
+    addButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // In a real application, this would open a modal to add a bank account
+        // For now, we'll just show an alert
+        alert('Add bank account functionality would be implemented here.');
+      });
+    });
+    
+    // Edit account functionality
+    const editButtons = document.querySelectorAll('.account-actions .btn-outline-secondary');
+    editButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // In a real application, this would open a modal to edit the account
+        // For now, we'll just show an alert
+        alert('Edit account functionality would be implemented here.');
+      });
+    });
+    
+    // Delete account functionality
+    const deleteButtons = document.querySelectorAll('.account-actions .btn-outline-danger');
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // In a real application, this would open a confirmation dialog
+        // For now, we'll just show an alert
+        alert('Delete account functionality would be implemented here.');
+      });
+    });
+    
+    // Transfer between accounts functionality
+    const transferButton = document.querySelector('.summary-card .btn-outline-primary:nth-child(2)');
+    if (transferButton) {
+      transferButton.addEventListener('click', function() {
+        // In a real application, this would open a modal to transfer between accounts
+        // For now, we'll just show an alert
+        alert('Transfer between accounts functionality would be implemented here.');
+      });
+    }
+    
+    // Download statements functionality
+    const downloadButton = document.querySelector('.summary-card .btn-outline-primary:nth-child(3)');
+    if (downloadButton) {
+      downloadButton.addEventListener('click', function() {
+        // In a real application, this would open a modal to download statements
+        // For now, we'll just show an alert
+        alert('Download statements functionality would be implemented here.');
+      });
+    }
+    
+    // Security settings functionality
+    const securityButton = document.querySelector('.summary-card .btn-outline-primary:nth-child(4)');
+    if (securityButton) {
+      securityButton.addEventListener('click', function() {
+        // In a real application, this would open a modal for security settings
+        // For now, we'll just show an alert
+        alert('Security settings functionality would be implemented here.');
+      });
+    }
+  });
+</script>
+{% endblock %}
