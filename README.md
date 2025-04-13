@@ -25,7 +25,6 @@
 - [Azure Deployment](#-azure-deployment)
 - [Demo Mode](#-demo-mode)
 - [Portfolio Context](#-portfolio-context)
-- [Future Roadmap](#-future-roadmap)
 - [Performance Optimizations](#-performance-optimizations)
 - [Security Considerations](#-security-considerations)
 - [License](#-license)
@@ -262,17 +261,6 @@ This project was created as a portfolio demonstration of full-stack development 
 ### Educational Purpose
 This project is intended to demonstrate technical capabilities and is not meant for production use with real financial data.
 
-## 🔮 Future Roadmap
-
-If developed further, CloudSpend could include:
-
-- **Real Database Integration**: Azure Database for MySQL implementation
-- **Authentication System**: User registration and secure login
-- **Plaid API Integration**: Real bank account connections
-- **Machine Learning**: Expense categorization and financial insights
-- **Mobile App**: Native mobile applications using React Native
-- **Subscription Management**: Track and optimize recurring expenses
-- **Investment Portfolio**: Track investment performance
 
 ## ⚡ Performance Optimizations
 
