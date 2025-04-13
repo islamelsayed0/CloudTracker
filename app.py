@@ -255,6 +255,257 @@ def import_csv():
     
     return render_template('import.html')
 
+@app.route('/import/upload', methods=['POST'])
+def upload_csv_file():
+    """
+    Handle CSV file upload.
+    
+    This endpoint:
+    1. Validates the uploaded file
+    2. Saves it to a temporary location
+    3. Reads the CSV data
+    4. Suggests column mappings
+    
+    Returns:
+        JSON response with file ID, column names, and suggested mappings
+    """
+    from app.services.csv_service import CSVService
+    import json
+    
+    # Initialize CSV service
+    csv_service = CSVService()
+    
+    # Check if file was uploaded
+    if 'file' not in request.files:
+        return json.dumps({'error': 'No file uploaded'}), 400
+    
+    file = request.files['file']
+    
+    # Check if filename is empty
+    if file.filename == '':
+        return json.dumps({'error': 'No file selected'}), 400
+    
+    # Check file extension
+    if not file.filename.endswith('.csv'):
+        return json.dumps({'error': 'File must be a CSV'}), 400
+    
+    try:
+        # Save the file to a temporary location
+        file_path = csv_service.save_uploaded_file(file)
+        
+        # Read the CSV file
+        df = csv_service.read_csv(file_path)
+        
+        # Get column names
+        columns = df.columns.tolist()
+        
+        # Suggest column mappings
+        suggested_mapping = csv_service.suggest_column_mapping(df)
+        
+        # Get sample data for preview (first 5 rows)
+        sample_data = df.head(5).to_dict('records')
+        
+        # Return the file path, columns, and suggested mappings
+        return json.dumps({
+            'file_path': file_path,
+            'columns': columns,
+            'suggested_mapping': suggested_mapping,
+            'sample_data': sample_data
+        }), 200
+    
+    except Exception as e:
+        return json.dumps({'error': str(e)}), 500
+
+@app.route('/import/map', methods=['POST'])
+def map_csv_columns():
+    """
+    Process column mapping for CSV import.
+    
+    This endpoint:
+    1. Applies the user-selected column mappings
+    2. Converts dates to a standard format
+    3. Normalizes amounts
+    4. Categorizes transactions
+    
+    Returns:
+        JSON response with preview data
+    """
+    from app.services.csv_service import CSVService
+    import json
+    
+    # Initialize CSV service
+    csv_service = CSVService()
+    
+    # Get request data
+    data = request.get_json()
+    
+    if not data:
+        return json.dumps({'error': 'No data provided'}), 400
+    
+    file_path = data.get('file_path')
+    mapping = data.get('mapping')
+    date_format = data.get('date_format')
+    amount_format = data.get('amount_format', 'negative_expense')
+    
+    if not file_path or not mapping:
+        return json.dumps({'error': 'Missing required parameters'}), 400
+    
+    try:
+        # Read the CSV file
+        df = csv_service.read_csv(file_path)
+        
+        # Apply column mapping
+        df = csv_service.apply_column_mapping(df, mapping)
+        
+        # Convert dates if date column and format are provided
+        if 'date' in df.columns and date_format:
+            df = csv_service.convert_dates(df, 'date', date_format)
+        
+        # Normalize amounts
+        df = csv_service.normalize_amounts(df, amount_format)
+        
+        # Categorize transactions
+        df = csv_service.categorize_transactions(df)
+        
+        # Validate the data
+        issues = csv_service.validate_data(df)
+        
+        # Generate preview
+        preview = csv_service.generate_preview(df, issues)
+        
+        # Return the preview data
+        return json.dumps({
+            'file_path': file_path,
+            'preview': preview
+        }), 200
+    
+    except Exception as e:
+        return json.dumps({'error': str(e)}), 500
+
+@app.route('/import/preview', methods=['POST'])
+def preview_csv_import():
+    """
+    Generate a detailed preview of the CSV import.
+    
+    This endpoint:
+    1. Applies any user adjustments to the data
+    2. Performs final validation
+    3. Generates statistics and potential issues
+    
+    Returns:
+        JSON response with detailed preview data
+    """
+    from app.services.csv_service import CSVService
+    import json
+    
+    # Initialize CSV service
+    csv_service = CSVService()
+    
+    # Get request data
+    data = request.get_json()
+    
+    if not data:
+        return json.dumps({'error': 'No data provided'}), 400
+    
+    file_path = data.get('file_path')
+    skip_duplicates = data.get('skip_duplicates', True)
+    auto_categorize = data.get('auto_categorize', True)
+    fix_issues = data.get('fix_issues', True)
+    
+    if not file_path:
+        return json.dumps({'error': 'Missing file path'}), 400
+    
+    try:
+        # Read the CSV file with previously applied mappings
+        # (This would be stored in a session in a real application)
+        df = csv_service.read_csv(file_path)
+        
+        # Apply any additional processing based on user options
+        if auto_categorize:
+            df = csv_service.categorize_transactions(df)
+        
+        # Validate the data
+        issues = csv_service.validate_data(df)
+        
+        # Generate detailed preview
+        preview = csv_service.generate_preview(df, issues)
+        
+        # Return the preview data
+        return json.dumps({
+            'file_path': file_path,
+            'preview': preview
+        }), 200
+    
+    except Exception as e:
+        return json.dumps({'error': str(e)}), 500
+
+@app.route('/import/process', methods=['POST'])
+def process_csv_import():
+    """
+    Process the final CSV import.
+    
+    This endpoint:
+    1. Processes the CSV data with all user-confirmed settings
+    2. Stores the transactions in the system
+    3. Generates an import summary
+    
+    Returns:
+        JSON response with import summary
+    """
+    from app.services.csv_service import CSVService
+    from app.models.transaction import Transaction, TransactionBatch, add_transaction_batch
+    from datetime import datetime
+    import json
+    
+    # Initialize CSV service
+    csv_service = CSVService()
+    
+    # Get request data
+    data = request.get_json()
+    
+    if not data:
+        return json.dumps({'error': 'No data provided'}), 400
+    
+    file_path = data.get('file_path')
+    
+    if not file_path:
+        return json.dumps({'error': 'Missing file path'}), 400
+    
+    try:
+        # Read the CSV file with previously applied mappings
+        df = csv_service.read_csv(file_path)
+        
+        # Process the import
+        import_result = csv_service.process_import(df)
+        
+        # Create Transaction objects
+        transactions = []
+        for t_data in import_result['transactions']:
+            transaction = Transaction.from_dict(t_data)
+            transactions.append(transaction)
+        
+        # Create a TransactionBatch
+        batch = TransactionBatch(
+            batch_id=import_result['summary']['batch_id'],
+            transactions=transactions,
+            import_date=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        )
+        
+        # Add the batch to the database
+        add_transaction_batch(batch)
+        
+        # Clean up the temporary file
+        csv_service.cleanup_temp_file(file_path)
+        
+        # Return the import summary
+        return json.dumps({
+            'success': True,
+            'summary': batch.to_dict()
+        }), 200
+    
+    except Exception as e:
+        return json.dumps({'error': str(e)}), 500
+
 @app.route('/accounts/bank')
 def bank_accounts():
     """

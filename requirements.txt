@@ -24,3 +24,12 @@ pymysql==1.0.3
 
 # Cryptography library for secure data handling
 cryptography==40.0.1
+
+# Data analysis and manipulation library
+pandas==2.0.0
+
+# File upload handling
+Flask-Uploads==0.2.1
+
+# UUID generation
+uuid==1.30

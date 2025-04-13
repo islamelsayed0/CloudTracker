@@ -1,14 +1,14 @@
 /*
- * styles.css - Main Stylesheet for Muzzy Tracker
+ * styles.css - Main Stylesheet for CloudSpend
  *
- * This file contains all custom styles for the Muzzy Tracker application.
+ * This file contains all custom styles for the CloudSpend application.
  * It uses CSS variables for consistent theming and includes responsive
- * adjustments for different screen sizes.
+ * adjustments for different screen sizes with a mobile-first approach.
  *
  * The color palette uses:
- * - Green (#0B6E4F): Primary color for buttons, headings, and key elements
- * - Salmon (#FA8072): Accent color for highlights and secondary elements
- * - Off-white (#FEFEFA): Background color for clean, professional look
+ * - Azure Blue (#3498db): Primary color for buttons, headings, and key elements
+ * - Fresh Green (#2ecc71): Accent color for highlights and secondary elements
+ * - Light Cloud (#f9f9f9): Background color for clean, professional look
  */
 
 /* 
@@ -17,105 +17,274 @@
  */
 :root {
   /* Light Theme (Default) */
-  --primary-green: #0B6E4F;  /* Main brand color for buttons, headings */
-  --primary-salmon: #FA8072;  /* Accent color for highlights, secondary elements */
-  --background-white: #FEFEFA;  /* Background color for main content areas */
-  --text-dark: #333333;  /* Primary text color */
+  --primary-blue: #3498db;  /* Main brand color for buttons, headings */
+  --primary-green: #2ecc71;  /* Accent color for highlights, secondary elements */
+  --background-cloud: #f9f9f9;  /* Background color for main content areas */
+  --text-dark: #2c3e50;  /* Primary text color */
   --text-light: #FFFFFF;  /* Text color on dark backgrounds */
   --card-bg: #FFFFFF;  /* Card background color */
-  --border-color: #dee2e6;  /* Border color */
-  --sidebar-bg: #f8f9fa;  /* Sidebar background color */
+  --border-color: #e0e0e0;  /* Border color */
+  --sidebar-bg: #f5f5f5;  /* Sidebar background color */
   --input-bg: #FFFFFF;  /* Input background color */
-  --shadow-color: rgba(0, 0, 0, 0.1);  /* Shadow color */
+  --shadow-color: rgba(0, 0, 0, 0.08);  /* Shadow color */
+  --danger: #e74c3c;  /* Danger/error color */
+  --warning: #f39c12;  /* Warning color */
+  --success: #27ae60;  /* Success color */
+  --info: #3498db;  /* Info color */
+  
+  /* Spacing Variables */
+  --space-xs: 0.25rem;  /* 4px */
+  --space-sm: 0.5rem;   /* 8px */
+  --space-md: 1rem;     /* 16px */
+  --space-lg: 1.5rem;   /* 24px */
+  --space-xl: 2rem;     /* 32px */
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;  /* 4px */
+  --radius-md: 0.5rem;   /* 8px */
+  --radius-lg: 1rem;     /* 16px */
+  --radius-xl: 1.5rem;   /* 24px */
+  
+  /* Transition Speeds */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
 }
 
 /* Dark Theme */
 .dark-theme {
-  --primary-green: #0B8E6F;  /* Slightly brighter green for dark mode */
-  --primary-salmon: #FF9B8C;  /* Slightly brighter salmon for dark mode */
-  --background-white: #121212;  /* Dark background */
-  --text-dark: #E0E0E0;  /* Light text for dark mode */
+  --primary-blue: #4aa3df;  /* Slightly brighter blue for dark mode */
+  --primary-green: #2ecc71;  /* Same green works well in dark mode */
+  --background-cloud: #121212;  /* Dark background */
+  --text-dark: #ecf0f1;  /* Light text for dark mode */
   --text-light: #FFFFFF;  /* White text remains the same */
-  --card-bg: #1E1E1E;  /* Dark card background */
+  --card-bg: #1e1e1e;  /* Dark card background */
   --border-color: #333333;  /* Darker border color */
-  --sidebar-bg: #1A1A1A;  /* Dark sidebar background */
-  --input-bg: #2A2A2A;  /* Dark input background */
+  --sidebar-bg: #1a1a1a;  /* Dark sidebar background */
+  --input-bg: #2a2a2a;  /* Dark input background */
   --shadow-color: rgba(0, 0, 0, 0.3);  /* Darker shadow */
+  --danger: #e74c3c;  /* Same danger color */
+  --warning: #f39c12;  /* Same warning color */
+  --success: #27ae60;  /* Same success color */
+  --info: #3498db;  /* Same info color */
 }
 
 /*
  * Global Styles
- * Base styling for the entire application
+ * Base styling for the entire application with mobile-first approach
  */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;  /* Modern, readable font stack */
   color: var(--text-dark);  /* Default text color */
-  background-color: var(--background-white);  /* Default background color */
+  background-color: var(--background-cloud);  /* Default background color */
+  line-height: 1.6;  /* Improved readability */
+  font-size: 16px;  /* Base font size */
+  -webkit-font-smoothing: antialiased;  /* Better font rendering */
+  -moz-osx-font-smoothing: grayscale;  /* Better font rendering */
+  overflow-x: hidden;  /* Prevent horizontal scrolling */
+}
+
+/* Improved focus styles for accessibility */
+:focus {
+  outline: 3px solid rgba(52, 152, 219, 0.5);  /* Visible focus outline */
+  outline-offset: 2px;  /* Space between outline and element */
+}
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;  /* Smooth scrolling between anchor links */
+}
+
+/* Improved link styling */
+a {
+  color: var(--primary-blue);  /* Link color */
+  text-decoration: none;  /* No underline by default */
+  transition: color var(--transition-fast);  /* Smooth color transition */
+}
+
+a:hover {
+  color: #2980b9;  /* Darker blue on hover */
+  text-decoration: underline;  /* Underline on hover */
+}
+
+/* Improved heading styles */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;  /* Remove default top margin */
+  margin-bottom: var(--space-md);  /* Consistent bottom margin */
+  font-weight: 600;  /* Semi-bold for all headings */
+  line-height: 1.2;  /* Tighter line height for headings */
+  color: var(--text-dark);  /* Consistent color */
+}
+
+/* Paragraph spacing */
+p {
+  margin-top: 0;  /* Remove default top margin */
+  margin-bottom: var(--space-md);  /* Consistent bottom margin */
+}
+
+/* Container padding adjustments for mobile */
+.container {
+  padding-left: var(--space-md);  /* Consistent padding */
+  padding-right: var(--space-md);  /* Consistent padding */
 }
 
 /*
  * Navigation Styles
- * Styling for the top navigation bar
+ * Styling for the top navigation bar with mobile optimizations
  */
 .navbar {
-  background-color: var(--background-white);  /* Match the main background */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);  /* Subtle shadow for depth */
+  background-color: var(--card-bg);  /* Card background for navbar */
+  box-shadow: 0 2px 10px var(--shadow-color);  /* Subtle shadow for depth */
   position: sticky;  /* Stick to the top when scrolling */
   top: 0;  /* Align to top of viewport */
   z-index: 1000;  /* Ensure navbar stays above other content */
+  padding: var(--space-sm) 0;  /* Reduced padding for mobile */
+  transition: all var(--transition-normal);  /* Smooth transition for all properties */
+}
+
+/* Smaller navbar on scroll */
+.navbar.scrolled {
+  padding: var(--space-xs) 0;  /* Even smaller padding when scrolled */
+  box-shadow: 0 3px 10px var(--shadow-color);  /* Stronger shadow when scrolled */
 }
 
 .navbar-brand {
-  color: var(--primary-green);  /* Brand name in primary color */
+  color: var(--primary-blue);  /* Brand name in primary color */
   font-weight: 700;  /* Bold weight for emphasis */
   font-size: 1.5rem;  /* Larger size for visibility */
+  display: flex;  /* For logo alignment */
+  align-items: center;  /* Center logo vertically */
+}
+
+.navbar-brand img {
+  height: 30px;  /* Fixed height for logo */
+  margin-right: var(--space-sm);  /* Space between logo and text */
 }
 
 .nav-link {
   color: var(--text-dark);  /* Dark text for readability */
   font-weight: 500;  /* Medium weight for balance */
+  padding: var(--space-sm) var(--space-md) !important;  /* Larger touch target for mobile */
+  border-radius: var(--radius-md);  /* Rounded corners */
+  transition: all var(--transition-fast);  /* Smooth transition */
 }
 
 .nav-link:hover {
-  color: var(--primary-green);  /* Change to primary color on hover for feedback */
+  color: var(--primary-blue);  /* Change to primary color on hover */
+  background-color: rgba(52, 152, 219, 0.05);  /* Very light blue background on hover */
+}
+
+.nav-link.active {
+  color: var(--primary-blue);  /* Primary color for active link */
+  font-weight: 600;  /* Slightly bolder for active link */
+}
+
+/* Mobile navigation improvements */
+.navbar-toggler {
+  border: none;  /* Remove border */
+  padding: var(--space-sm);  /* Adequate padding */
+  font-size: 1.5rem;  /* Larger icon */
+  color: var(--primary-blue);  /* Primary color */
+  transition: transform var(--transition-fast);  /* Smooth transition */
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;  /* Remove default focus shadow */
+  outline: none;  /* Remove outline */
+}
+
+.navbar-toggler:hover {
+  transform: scale(1.1);  /* Slight grow effect on hover */
+}
+
+/* Mobile menu styling */
+.navbar-collapse {
+  background-color: var(--card-bg);  /* Match navbar background */
+  border-radius: var(--radius-lg);  /* Rounded corners */
+  padding: var(--space-sm);  /* Internal padding */
+  margin-top: var(--space-sm);  /* Space from navbar */
+}
+
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    box-shadow: 0 5px 15px var(--shadow-color);  /* Shadow for mobile menu */
+  }
+  
+  .nav-link {
+    padding: var(--space-md) !important;  /* Larger padding on mobile */
+    border-bottom: 1px solid var(--border-color);  /* Separator between links */
+  }
+  
+  .nav-link:last-child {
+    border-bottom: none;  /* No border on last item */
+  }
 }
 
 /*
  * Hero Section Styles
- * Main banner at the top of the landing page
+ * Main banner at the top of the landing page with mobile optimizations
  */
 .hero-section {
   position: relative;  /* For positioning decorative elements */
-  height: 100vh;  /* Full viewport height */
-  min-height: 600px;  /* Minimum height for smaller screens */
+  min-height: 85vh;  /* Minimum height relative to viewport */
   display: flex;  /* For vertical centering */
   align-items: center;  /* Center content vertically */
-  background-color: var(--background-white);  /* Base background color */
-  background-image: linear-gradient(135deg, var(--background-white) 0%, #FFF5F4 100%);  /* Subtle gradient */
+  background-color: var(--background-cloud);  /* Base background color */
+  background-image: linear-gradient(135deg, var(--background-cloud) 0%, #e1f0fa 100%);  /* Subtle blue gradient */
   overflow: hidden;  /* Prevent decorative elements from causing scrollbars */
+  padding: var(--space-xl) 0;  /* Vertical padding */
 }
 
+/* Cloud-themed decorative elements */
 .decorative-shape {
   position: absolute;  /* Position independently of content flow */
   bottom: 0;  /* Align to bottom */
   right: 0;  /* Align to right */
-  width: 300px;  /* Fixed width */
-  height: 300px;  /* Fixed height */
-  background-color: rgba(250, 128, 114, 0.1);  /* Very light salmon color */
+  width: 40%;  /* Responsive width */
+  max-width: 400px;  /* Maximum width */
+  height: 40%;  /* Responsive height */
+  max-height: 400px;  /* Maximum height */
+  background-color: rgba(52, 152, 219, 0.05);  /* Very light blue color */
   border-radius: 50% 0 0 0;  /* Rounded top-left corner for quarter-circle shape */
+  z-index: 0;  /* Place behind content */
+}
+
+/* Additional cloud shape */
+.cloud-shape {
+  position: absolute;  /* Position independently of content flow */
+  top: 15%;  /* Position from top */
+  left: -5%;  /* Slightly off-screen */
+  width: 20%;  /* Responsive width */
+  max-width: 200px;  /* Maximum width */
+  height: 20vw;  /* Responsive height */
+  max-height: 200px;  /* Maximum height */
+  background-color: rgba(46, 204, 113, 0.05);  /* Very light green color */
+  border-radius: 50%;  /* Circular shape */
   z-index: 0;  /* Place behind content */
 }
 
 .hero-content {
   position: relative;  /* For proper stacking context */
   z-index: 1;  /* Place above decorative elements */
-  padding: 2rem;  /* Spacing around content */
+  padding: var(--space-lg);  /* Responsive padding */
+  max-width: 600px;  /* Maximum width for readability */
+  margin: 0 auto;  /* Center horizontally */
 }
 
 .hero-content h1 {
-  color: var(--primary-green);  /* Primary color for headline */
+  color: var(--primary-blue);  /* Primary color for headline */
   font-weight: 700;  /* Bold weight for emphasis */
-  margin-bottom: 1.5rem;  /* Space below headline */
+  margin-bottom: var(--space-lg);  /* Space below headline */
+  font-size: clamp(2rem, 5vw, 3.5rem);  /* Responsive font size */
+  line-height: 1.2;  /* Tighter line height */
+}
+
+/* Hero subtitle */
+.hero-subtitle {
+  font-size: clamp(1.1rem, 3vw, 1.5rem);  /* Responsive font size */
+  color: var(--text-dark);  /* Dark text color */
+  margin-bottom: var(--space-xl);  /* Space below subtitle */
+  opacity: 0.9;  /* Slightly transparent */
 }
 
 /*
@@ -158,32 +327,143 @@ body {
 
 /*
  * Button Styles
- * Custom styling for buttons throughout the application
+ * Custom styling for buttons throughout the application with mobile optimizations
  */
-.btn-primary {
-  background-color: var(--primary-green);  /* Primary color background */
-  border-color: var(--primary-green);  /* Matching border */
-  color: var(--text-light);  /* White text for contrast */
-  padding: 0.75rem 2rem;  /* Larger padding for prominence */
+.btn {
+  border-radius: var(--radius-md);  /* Consistent rounded corners */
   font-weight: 600;  /* Semi-bold text */
-  transition: all 0.3s ease;  /* Smooth transition for hover effects */
+  padding: 0.75rem 1.5rem;  /* Comfortable padding */
+  transition: all var(--transition-normal);  /* Smooth transition */
+  position: relative;  /* For positioning effects */
+  overflow: hidden;  /* For ripple effect */
+  text-transform: none;  /* No text transform */
+  letter-spacing: 0.5px;  /* Slight letter spacing */
+  box-shadow: 0 2px 5px var(--shadow-color);  /* Subtle shadow */
 }
 
-.btn-primary:hover {
-  background-color: #095a41;  /* Slightly darker on hover */
-  border-color: #095a41;  /* Matching border */
-  transform: translateY(-2px);  /* Slight lift effect */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);  /* Shadow for depth */
-}
-
-.btn-outline-secondary {
-  border-color: var(--primary-salmon);  /* Salmon border */
-  color: var(--primary-salmon);  /* Salmon text */
-}
-
-.btn-outline-secondary:hover {
-  background-color: var(--primary-salmon);  /* Fill with salmon on hover */
+/* Primary button - blue */
+.btn-primary {
+  background-color: var(--primary-blue);  /* Primary blue background */
+  border-color: var(--primary-blue);  /* Matching border */
   color: var(--text-light);  /* White text for contrast */
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #2980b9;  /* Slightly darker on hover */
+  border-color: #2980b9;  /* Matching border */
+  transform: translateY(-2px);  /* Slight lift effect */
+  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);  /* Enhanced shadow */
+}
+
+.btn-primary:active {
+  transform: translateY(0);  /* Reset lift on active */
+  box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);  /* Reduced shadow */
+}
+
+/* Secondary button - green */
+.btn-secondary {
+  background-color: var(--primary-green);  /* Green background */
+  border-color: var(--primary-green);  /* Matching border */
+  color: var(--text-light);  /* White text */
+}
+
+.btn-secondary:hover, .btn-secondary:focus {
+  background-color: #27ae60;  /* Slightly darker on hover */
+  border-color: #27ae60;  /* Matching border */
+  transform: translateY(-2px);  /* Slight lift effect */
+  box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);  /* Enhanced shadow */
+}
+
+/* Outline primary button */
+.btn-outline-primary {
+  border-color: var(--primary-blue);  /* Blue border */
+  color: var(--primary-blue);  /* Blue text */
+  background-color: transparent;  /* Transparent background */
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+  background-color: rgba(52, 152, 219, 0.05);  /* Very light blue background */
+  color: var(--primary-blue);  /* Keep blue text */
+  border-color: var(--primary-blue);  /* Keep blue border */
+  transform: translateY(-2px);  /* Slight lift effect */
+}
+
+/* Outline secondary button */
+.btn-outline-secondary {
+  border-color: var(--primary-green);  /* Green border */
+  color: var(--primary-green);  /* Green text */
+  background-color: transparent;  /* Transparent background */
+}
+
+.btn-outline-secondary:hover, .btn-outline-secondary:focus {
+  background-color: rgba(46, 204, 113, 0.05);  /* Very light green background */
+  color: var(--primary-green);  /* Keep green text */
+  border-color: var(--primary-green);  /* Keep green border */
+  transform: translateY(-2px);  /* Slight lift effect */
+}
+
+/* Small button variant */
+.btn-sm {
+  padding: 0.4rem 1rem;  /* Smaller padding */
+  font-size: 0.875rem;  /* Smaller font */
+}
+
+/* Large button variant */
+.btn-lg {
+  padding: 1rem 2rem;  /* Larger padding */
+  font-size: 1.125rem;  /* Larger font */
+}
+
+/* Full-width button on mobile */
+@media (max-width: 576px) {
+  .btn-mobile-full {
+    display: block;  /* Block display */
+    width: 100%;  /* Full width */
+    margin-bottom: var(--space-md);  /* Bottom margin */
+  }
+}
+
+/* Button with icon */
+.btn-icon {
+  display: inline-flex;  /* Inline flex for icon alignment */
+  align-items: center;  /* Center items vertically */
+  justify-content: center;  /* Center items horizontally */
+}
+
+.btn-icon i, .btn-icon svg {
+  margin-right: var(--space-sm);  /* Space between icon and text */
+}
+
+/* Icon-only button */
+.btn-icon-only {
+  width: 2.5rem;  /* Fixed width */
+  height: 2.5rem;  /* Fixed height */
+  padding: 0;  /* No padding */
+  display: inline-flex;  /* Inline flex for centering */
+  align-items: center;  /* Center vertically */
+  justify-content: center;  /* Center horizontally */
+  border-radius: 50%;  /* Circular shape */
+}
+
+/* Floating action button */
+.btn-floating {
+  position: fixed;  /* Fixed position */
+  bottom: var(--space-xl);  /* Distance from bottom */
+  right: var(--space-xl);  /* Distance from right */
+  width: 3.5rem;  /* Fixed width */
+  height: 3.5rem;  /* Fixed height */
+  border-radius: 50%;  /* Circular shape */
+  display: flex;  /* Flex for centering */
+  align-items: center;  /* Center vertically */
+  justify-content: center;  /* Center horizontally */
+  font-size: 1.5rem;  /* Larger icon */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);  /* Pronounced shadow */
+  z-index: 100;  /* Above other content */
+}
+
+.btn-floating:hover {
+  transform: translateY(-5px) scale(1.05);  /* Lift and grow effect */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);  /* Enhanced shadow */
 }
 
 /*
@@ -256,6 +536,36 @@ body {
   font-weight: 600;  /* Semi-bold weight */
   margin-bottom: 1rem;  /* Space below title */
   color: var(--primary-green);  /* Primary color for title */
+}
+
+/*
+ * Security Section Styles
+ * Styling for the security and privacy information section
+ */
+.security-section {
+  background-color: rgba(11, 110, 79, 0.05);  /* Very light green background */
+  border-left: 4px solid var(--primary-green);  /* Green accent border */
+  box-shadow: 0 3px 10px var(--shadow-color);  /* Subtle shadow for depth */
+  transition: transform 0.3s ease;  /* Smooth transition for hover effect */
+}
+
+.security-section:hover {
+  transform: translateY(-3px);  /* Slight lift effect on hover */
+}
+
+.security-section h3 {
+  color: var(--primary-green);  /* Primary color for title */
+  font-weight: 600;  /* Semi-bold weight */
+  margin-bottom: 1rem;  /* Space below title */
+}
+
+.security-section p {
+  margin-bottom: 0.75rem;  /* Space between paragraphs */
+  line-height: 1.6;  /* Increased line height for readability */
+}
+
+.security-section i {
+  color: var(--primary-green);  /* Primary color for icon */
 }
 
 /*
@@ -347,3 +657,15 @@ body {
  * for extra small screens (max-width: 576px) or
  * large screens (min-width: 992px)
  */
+
+/* 
+ * Dashboard-specific styles
+ * Hide hamburger menu and navigation links in dashboard
+ */
+body.dashboard-page .navbar-toggler {
+  display: none !important; /* Hide hamburger menu button */
+}
+
+body.dashboard-page #navbarNav {
+  display: none !important; /* Hide navigation links */
+}

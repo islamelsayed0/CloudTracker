@@ -1,92 +1,131 @@
-# Muzzy Tracker
+# CloudSpend
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Python](https://img.shields.io/badge/Python-3.9+-green.svg)
 ![Flask](https://img.shields.io/badge/Flask-2.2.3-lightgrey.svg)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple.svg)
+![Azure](https://img.shields.io/badge/Azure-Ready-0078D4.svg)
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 
-Muzzy Tracker is a comprehensive full-stack finance web application designed to help users track their finances, analyze spending patterns, and calculate Zakat (Islamic almsgiving). The application securely connects to users' bank accounts and investment platforms to provide a complete financial overview.
+<div align="center">
+  <img src="app/static/images/cloudspend-logo.png" alt="CloudSpend Logo" width="300px" />
+  <h3>Modern Financial Management in the Cloud</h3>
+  <p><i>A portfolio project demonstrating full-stack development with Flask and Azure integration</i></p>
+</div>
 
 ## 📋 Table of Contents
 
+- [Overview](#-overview)
 - [Features](#-features)
 - [Technology Stack](#-technology-stack)
-- [Project Structure](#-project-structure)
+- [Architecture](#-architecture)
+- [Mobile Responsiveness](#-mobile-responsiveness)
 - [Getting Started](#-getting-started)
-- [Configuration](#-configuration)
 - [Development](#-development)
-- [Deployment](#-deployment)
+- [Azure Deployment](#-azure-deployment)
+- [Demo Mode](#-demo-mode)
+- [Portfolio Context](#-portfolio-context)
+- [Future Roadmap](#-future-roadmap)
+- [Performance Optimizations](#-performance-optimizations)
 - [Security Considerations](#-security-considerations)
-- [Contributing](#-contributing)
 - [License](#-license)
+
+## 🔍 Overview
+
+CloudSpend is a comprehensive financial management application designed to help users track expenses, manage budgets, and gain insights into their financial health. Built with a modern tech stack and deployed on Azure, this application showcases best practices in full-stack development.
+
+**Important Note:** This is a portfolio demonstration project. While it includes integration points for real financial data, the application operates in demo mode with simulated data for showcase purposes.
 
 ## ✨ Features
 
-- **Bank Account Integration**: Connect securely to your bank accounts using Plaid API
-- **Investment Tracking**: Connect to investment platforms like Robinhood
-- **Smart Analytics**: Visualize your spending patterns with interactive charts
-- **Zakat Calculator**: Calculate your annual Zakat obligation with precision
-- **Secure & Private**: Your financial data is encrypted and secure
-- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+### Core Functionality
+- **Financial Dashboard**: Interactive overview of financial health with charts and summaries
+- **Transaction Management**: Track, categorize, and analyze spending patterns
+- **Budget Planning**: Create and monitor budgets with visual progress indicators
+- **CSV Import**: Upload financial data from bank exports
+- **Zakat Calculator**: Calculate Islamic almsgiving obligations based on assets
+
+### Technical Highlights
+- **Responsive Design**: Optimized for all devices from mobile to desktop
+- **Dark Mode**: Toggle between light and dark themes with persistent preferences
+- **Offline Support**: Core functionality works without an internet connection
+- **Progressive Enhancement**: Basic features work in any browser, enhanced experience in modern browsers
+- **Accessibility**: WCAG 2.1 AA compliant for inclusive user experience
 
 ## 🛠️ Technology Stack
 
 ### Frontend
-- **HTML5**: Semantic markup for structure
-- **CSS3**: Custom styling with responsive design
-- **Bootstrap 5**: UI framework for responsive components
-- **JavaScript**: Client-side validation and interactivity
+- **HTML5**: Semantic markup with accessibility features
+- **CSS3**: Custom styling with CSS variables for theming
+- **Bootstrap 5.3**: Latest version with enhanced mobile support
+- **JavaScript**: Modern ES6+ features for interactive elements
+- **Chart.js**: Responsive data visualization
 
 ### Backend
 - **Python 3.9+**: Core programming language
-- **Flask**: Web framework
-- **Flask-Login**: User session management
-- **Flask-WTF**: Form handling and validation
-- **Azure Database for MySQL**: Primary data storage
-- **Azure Blob Storage**: File storage for uploads
+- **Flask**: Lightweight web framework
+- **Flask Extensions**:
+  - Flask-WTF: Form handling and validation
+  - Flask-Login: User session management
+- **File-based Storage**: JSON data storage for demo purposes
 
-### APIs & Integrations
-- **Plaid API**: Secure bank account integration
-- **Azure App Service**: Hosting platform
+### DevOps & Deployment
+- **Azure App Service**: Cloud hosting platform
+- **Azure Blob Storage**: Static asset storage
+- **GitHub Actions**: CI/CD pipeline
+- **Docker**: Containerization for consistent deployment
 
-## 📁 Project Structure
+## 🏗️ Architecture
+
+CloudSpend follows a modular MVC architecture designed for scalability and maintainability:
 
 ```
-muzzy_tracker/
-│
-├── app/                      # Application code
-│   ├── static/               # Static files (CSS, JS, images)
-│   │   ├── css/
-│   │   │   └── styles.css    # Custom styles
-│   │   └── js/
-│   │       └── scripts.js    # Client-side functionality
-│   ├── templates/            # HTML templates
-│   │   ├── base.html         # Base template with common structure
-│   │   ├── login.html        # Landing page with login form
-│   │   └── ...               # Other templates
-│   └── ...                   # Python modules
-│
-├── .env.example              # Environment variables template
-├── .gitignore                # Git ignore file
-├── app.py                    # Main Flask application
-├── requirements.txt          # Python dependencies
-└── README.md                 # Project documentation
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Browser   │────▶│  Flask App  │────▶│  File-based │
+│   Client    │◀────│  (Server)   │◀────│   Storage   │
+└─────────────┘     └─────────────┘     └─────────────┘
+                          │
+                          ▼
+                    ┌─────────────┐
+                    │ Azure Blob  │
+                    │  Storage    │
+                    └─────────────┘
 ```
+
+### Key Components:
+- **Templates**: Jinja2 templates with inheritance for consistent UI
+- **Static Assets**: CSS, JavaScript, and images served from Azure Blob Storage
+- **Routes**: RESTful API endpoints for data operations
+- **Services**: Business logic separated into service modules
+- **Models**: Data structures and storage interfaces
+
+## 📱 Mobile Responsiveness
+
+CloudSpend is built with a mobile-first approach, ensuring optimal user experience across all devices:
+
+- **Responsive Breakpoints**: Custom design for mobile, tablet, and desktop
+- **Touch-Optimized**: Larger touch targets on mobile interfaces
+- **Adaptive Layout**: Content reorganization based on screen size
+- **Performance Optimized**: Minimized assets for faster mobile loading
+- **Bottom Navigation**: Mobile-specific navigation pattern for thumb-friendly access
+
+<div align="center">
+  <img src="app/static/images/responsive-showcase.png" alt="Responsive Design Showcase" width="800px" />
+</div>
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-
-- **Python 3.9+**: The application requires Python 3.9 or newer
-- **pip**: Python package manager
-- **Git**: Version control system (for cloning the repository)
+- Python 3.9 or higher
+- Git
+- pip (Python package manager)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/muzzy_tracker.git
-   cd muzzy_tracker
+   git clone https://github.com/yourusername/cloudspend.git
+   cd cloudspend
    ```
 
 2. **Create a virtual environment**
@@ -109,134 +148,153 @@ muzzy_tracker/
    pip install -r requirements.txt
    ```
 
-5. **Set up environment variables**
-   - Copy the example environment file:
-     ```bash
-     cp .env.example .env
-     ```
-   - Edit the `.env` file and add your credentials
-
-6. **Run the application**
+5. **Run the application**
    ```bash
    flask run
    ```
 
-7. **Access the application**
+6. **Access the application**
    - Open your browser and navigate to `http://localhost:5000`
-   - You should see the landing page with the login form
-
-## ⚙️ Configuration
-
-The application uses environment variables for configuration. These are stored in a `.env` file in the root directory.
-
-### Required Environment Variables
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `FLASK_APP` | Main Flask application file | `app.py` |
-| `FLASK_ENV` | Environment (development, production) | `development` |
-| `SECRET_KEY` | Secret key for session management | `your_random_secret_key` |
-| `PLAID_CLIENT_ID` | Plaid API client ID | `your_plaid_client_id` |
-| `PLAID_SECRET` | Plaid API secret | `your_plaid_secret` |
-| `PLAID_ENV` | Plaid environment (sandbox, development, production) | `sandbox` |
-| `AZURE_STORAGE_CONNECTION_STRING` | Azure Blob Storage connection string | `your_connection_string` |
-| `AZURE_MYSQL_SERVER` | Azure MySQL server hostname | `your_server.database.windows.net` |
-| `AZURE_MYSQL_DATABASE` | MySQL database name | `your_database_name` |
-| `AZURE_MYSQL_USERNAME` | MySQL username | `your_username` |
-| `AZURE_MYSQL_PASSWORD` | MySQL password | `your_password` |
-
-### Obtaining API Credentials
-
-#### Plaid API
-1. Sign up for a [Plaid account](https://dashboard.plaid.com/signup)
-2. Create a new project
-3. Navigate to the API keys section
-4. Copy your client ID and secrets for the desired environment
-
-#### Azure Services
-1. Create an [Azure account](https://azure.microsoft.com/free/)
-2. Set up Azure Database for MySQL
-3. Create an Azure Blob Storage account
-4. Copy the connection strings and credentials from the Azure Portal
+   - You'll see the landing page with demo login
 
 ## 💻 Development
 
-### Running in Development Mode
+### Project Structure
+```
+cloudspend/
+│
+├── app/                      # Application code
+│   ├── models/               # Data models
+│   ├── services/             # Business logic services
+│   ├── static/               # Static files (CSS, JS, images)
+│   │   ├── css/
+│   │   ├── js/
+│   │   └── images/
+│   └── templates/            # HTML templates
+│       ├── accounts/         # Account-related templates
+│       └── ...               # Other template categories
+│
+├── .env.example              # Environment variables template
+├── .gitignore                # Git ignore file
+├── app.py                    # Main Flask application
+├── requirements.txt          # Python dependencies
+└── README.md                 # Project documentation
+```
 
+### Development Server
 ```bash
-# Set Flask to development mode
-export FLASK_ENV=development  # Unix/macOS
-set FLASK_ENV=development     # Windows
-
 # Run with debug mode
-flask run --debug
+flask --debug run
 ```
 
 ### Code Style
-
-This project follows PEP 8 style guidelines for Python code. We recommend using tools like:
+This project follows PEP 8 style guidelines for Python code. We recommend using:
 - `flake8` for linting
 - `black` for code formatting
 
-### Testing
+## ☁️ Azure Deployment
 
-```bash
-# Run tests (when implemented)
-pytest
-```
+CloudSpend is designed for deployment on Azure cloud services:
 
-## 🚢 Deployment
+### Deployment Steps
 
-The application is designed to be deployed on Azure cloud services:
+1. **Create Azure Resources**
+   ```bash
+   # Install Azure CLI
+   curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+   
+   # Login to Azure
+   az login
+   
+   # Create Resource Group
+   az group create --name cloudspend-rg --location eastus
+   
+   # Create App Service Plan
+   az appservice plan create --name cloudspend-plan --resource-group cloudspend-rg --sku B1
+   
+   # Create Web App
+   az webapp create --name cloudspend --resource-group cloudspend-rg --plan cloudspend-plan --runtime "PYTHON|3.9"
+   
+   # Create Storage Account
+   az storage account create --name cloudspendstore --resource-group cloudspend-rg --location eastus --sku Standard_LRS
+   ```
 
-### Azure Deployment Steps
+2. **Configure GitHub Actions**
+   - Create `.github/workflows/azure-deploy.yml` with deployment configuration
+   - Add Azure credentials as GitHub secrets
 
-1. **Prepare the application**
-   - Ensure `FLASK_ENV=production` in your `.env` file
-   - Generate a strong `SECRET_KEY`
-   - Set up proper logging
-
-2. **Create Azure resources**
-   - Azure App Service for hosting the application
-   - Azure Database for MySQL for data storage
-   - Azure Blob Storage for file storage
-
-3. **Configure deployment**
-   - Set up GitHub Actions or Azure DevOps for CI/CD
-   - Configure environment variables in Azure App Service
-   - Set up database migrations
-
-4. **Deploy the application**
+3. **Deploy the Application**
    - Push to your deployment branch
-   - Monitor the deployment process
-   - Verify the application is running correctly
+   - GitHub Actions will automatically deploy to Azure
 
-### Deployment Architecture
+### Azure Architecture
+<div align="center">
+  <img src="app/static/images/azure-architecture.png" alt="Azure Architecture" width="600px" />
+</div>
 
-```
-[Users] → [Azure App Service] → [Azure Database for MySQL]
-                             ↘ [Azure Blob Storage]
-```
+## 🎮 Demo Mode
+
+CloudSpend operates in demo mode for portfolio demonstration purposes:
+
+### Demo Features
+- **Sample Data**: Pre-populated financial data for demonstration
+- **Reset Functionality**: Reset to initial state with one click
+- **No Real Data Processing**: Clear indicators that no actual financial data is processed
+- **Simulated API Responses**: Mimics real API behavior without external dependencies
+
+### Demo Limitations
+- No actual database connection (uses file-based storage)
+- No real financial institution connections
+- Sample data is reset on application restart
+
+## 🎨 Portfolio Context
+
+This project was created as a portfolio demonstration of full-stack development skills:
+
+### Showcased Skills
+- **Frontend Development**: Modern, responsive UI with Bootstrap and custom CSS
+- **Backend Development**: Flask application with proper architecture
+- **Cloud Integration**: Azure deployment configuration
+- **Security Practices**: Proper handling of sensitive data
+- **Documentation**: Comprehensive code comments and project documentation
+- **Mobile Optimization**: True responsive design for all devices
+
+### Educational Purpose
+This project is intended to demonstrate technical capabilities and is not meant for production use with real financial data.
+
+## 🔮 Future Roadmap
+
+If developed further, CloudSpend could include:
+
+- **Real Database Integration**: Azure Database for MySQL implementation
+- **Authentication System**: User registration and secure login
+- **Plaid API Integration**: Real bank account connections
+- **Machine Learning**: Expense categorization and financial insights
+- **Mobile App**: Native mobile applications using React Native
+- **Subscription Management**: Track and optimize recurring expenses
+- **Investment Portfolio**: Track investment performance
+
+## ⚡ Performance Optimizations
+
+CloudSpend includes several performance optimizations:
+
+- **Lazy Loading**: Images and non-critical resources load on demand
+- **Code Splitting**: JavaScript is split into smaller chunks
+- **Asset Minification**: CSS and JavaScript are minified for production
+- **Caching Strategy**: Proper cache headers for static assets
+- **Responsive Images**: Different image sizes for different devices
+- **Critical CSS**: Inline critical styles for faster initial render
 
 ## 🔒 Security Considerations
 
-- **Environment Variables**: Never commit `.env` files to version control
-- **API Keys**: Keep Plaid API keys and Azure credentials secure
-- **HTTPS**: Always use HTTPS in production
-- **Authentication**: Implement proper user authentication
-- **Data Encryption**: Encrypt sensitive data at rest and in transit
-- **Input Validation**: Validate all user inputs on both client and server
-- **Regular Updates**: Keep dependencies updated to patch security vulnerabilities
+While operating in demo mode, CloudSpend demonstrates security best practices:
 
-## 👥 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- **HTTPS Only**: All communications use secure HTTPS
+- **Content Security Policy**: Prevents XSS attacks
+- **CSRF Protection**: All forms include CSRF tokens
+- **Input Validation**: Server-side validation of all user inputs
+- **Secure Headers**: Implementation of security-focused HTTP headers
+- **No Sensitive Data**: Demo mode doesn't process real financial data
 
 ## 📄 License
 
@@ -244,4 +302,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Muzzy Tracker** - Developed with ❤️ for better financial management
+**CloudSpend** - Developed for portfolio demonstration purposes

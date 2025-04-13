@@ -562,6 +562,12 @@
     // Step indicators
     const stepIndicators = document.querySelectorAll('.step');
     
+    // State variables
+    let currentFilePath = null;
+    let columnMapping = {};
+    let dateFormat = '%Y-%m-%d';
+    let amountFormat = 'negative_expense';
+    
     // File upload handling
     browseButton.addEventListener('click', function() {
       fileInput.click();
@@ -569,24 +575,97 @@
     
     fileInput.addEventListener('change', function() {
       if (fileInput.files.length > 0) {
-        // Enable next button when file is selected
-        step1Next.disabled = false;
-        
-        // Show file name in upload area
-        const fileName = fileInput.files[0].name;
+        // Show loading state
         uploadArea.innerHTML = `
           <div class="upload-icon">
-            <i class="bi bi-file-earmark-text"></i>
+            <i class="bi bi-arrow-repeat spin"></i>
           </div>
-          <h5>${fileName}</h5>
-          <p class="text-muted mb-3">File selected</p>
-          <button class="btn btn-outline-secondary btn-sm" id="change-file">Change File</button>
+          <h5>Uploading...</h5>
+          <p class="text-muted mb-3">Please wait</p>
         `;
         
-        // Re-attach click handler to new button
-        document.getElementById('change-file').addEventListener('click', function(e) {
-          e.preventDefault();
-          fileInput.click();
+        // Create form data
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        
+        // Upload the file
+        fetch('/import/upload', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            // Show error
+            uploadArea.innerHTML = `
+              <div class="upload-icon text-danger">
+                <i class="bi bi-exclamation-circle"></i>
+              </div>
+              <h5>Upload Failed</h5>
+              <p class="text-danger mb-3">${data.error}</p>
+              <button class="btn btn-outline-secondary btn-sm" id="change-file">Try Again</button>
+            `;
+            
+            // Re-attach click handler to new button
+            document.getElementById('change-file').addEventListener('click', function(e) {
+              e.preventDefault();
+              fileInput.click();
+            });
+            
+            // Disable next button
+            step1Next.disabled = true;
+          } else {
+            // Store file path
+            currentFilePath = data.file_path;
+            
+            // Store suggested mapping
+            columnMapping = data.suggested_mapping;
+            
+            // Show success
+            const fileName = fileInput.files[0].name;
+            uploadArea.innerHTML = `
+              <div class="upload-icon text-success">
+                <i class="bi bi-file-earmark-text"></i>
+              </div>
+              <h5>${fileName}</h5>
+              <p class="text-success mb-3">File uploaded successfully</p>
+              <button class="btn btn-outline-secondary btn-sm" id="change-file">Change File</button>
+            `;
+            
+            // Re-attach click handler to new button
+            document.getElementById('change-file').addEventListener('click', function(e) {
+              e.preventDefault();
+              fileInput.click();
+            });
+            
+            // Enable next button
+            step1Next.disabled = false;
+            
+            // Prepare column mapping UI for step 2
+            prepareColumnMappingUI(data.columns, data.suggested_mapping, data.sample_data);
+          }
+        })
+        .catch(error => {
+          // Show error
+          uploadArea.innerHTML = `
+            <div class="upload-icon text-danger">
+              <i class="bi bi-exclamation-circle"></i>
+            </div>
+            <h5>Upload Failed</h5>
+            <p class="text-danger mb-3">An error occurred during upload</p>
+            <button class="btn btn-outline-secondary btn-sm" id="change-file">Try Again</button>
+          `;
+          
+          // Re-attach click handler to new button
+          document.getElementById('change-file').addEventListener('click', function(e) {
+            e.preventDefault();
+            fileInput.click();
+          });
+          
+          // Disable next button
+          step1Next.disabled = true;
+          
+          console.error('Upload error:', error);
         });
       }
     });
@@ -614,6 +693,93 @@
       }
     });
     
+    // Prepare column mapping UI
+    function prepareColumnMappingUI(columns, suggestedMapping, sampleData) {
+      const mappingTable = document.querySelector('.mapping-table tbody');
+      mappingTable.innerHTML = '';
+      
+      // Create a row for each column
+      columns.forEach(column => {
+        const row = document.createElement('tr');
+        
+        // CSV Column
+        const csvColumnCell = document.createElement('td');
+        csvColumnCell.textContent = column;
+        row.appendChild(csvColumnCell);
+        
+        // Muzzy Tracker Field
+        const fieldCell = document.createElement('td');
+        const fieldSelect = document.createElement('select');
+        fieldSelect.className = 'form-select';
+        fieldSelect.dataset.csvColumn = column;
+        
+        // Add options
+        const options = [
+          { value: 'date', text: 'Transaction Date' },
+          { value: 'description', text: 'Description' },
+          { value: 'amount', text: 'Amount' },
+          { value: 'category', text: 'Category' },
+          { value: 'account', text: 'Account' },
+          { value: 'ignore', text: 'Ignore this column' }
+        ];
+        
+        options.forEach(option => {
+          const optionElement = document.createElement('option');
+          optionElement.value = option.value;
+          optionElement.textContent = option.text;
+          
+          // Check if this column is suggested for this field
+          for (const [field, suggestedColumn] of Object.entries(suggestedMapping)) {
+            if (field === option.value && suggestedColumn === column) {
+              optionElement.selected = true;
+              break;
+            }
+          }
+          
+          fieldSelect.appendChild(optionElement);
+        });
+        
+        // If no option was selected, default to 'ignore'
+        if (!fieldSelect.value) {
+          fieldSelect.value = 'ignore';
+        }
+        
+        // Add change event listener
+        fieldSelect.addEventListener('change', function() {
+          // Update mapping
+          const field = this.value;
+          const csvColumn = this.dataset.csvColumn;
+          
+          if (field === 'ignore') {
+            // Remove from mapping
+            for (const [key, value] of Object.entries(columnMapping)) {
+              if (value === csvColumn) {
+                delete columnMapping[key];
+                break;
+              }
+            }
+          } else {
+            // Add to mapping
+            columnMapping[field] = csvColumn;
+          }
+        });
+        
+        fieldCell.appendChild(fieldSelect);
+        row.appendChild(fieldCell);
+        
+        // Sample Data
+        const sampleCell = document.createElement('td');
+        if (sampleData && sampleData.length > 0) {
+          const sampleValue = sampleData[0][column];
+          sampleCell.innerHTML = `<code>${sampleValue || ''}</code>`;
+        }
+        row.appendChild(sampleCell);
+        
+        // Add row to table
+        mappingTable.appendChild(row);
+      });
+    }
+    
     // Navigation between steps
     step1Next.addEventListener('click', function() {
       step1.classList.add('d-none');
@@ -636,14 +802,174 @@
     });
     
     step2Next.addEventListener('click', function() {
-      step2.classList.add('d-none');
-      step3.classList.remove('d-none');
+      // Get date format
+      const dateFormatSelect = document.querySelector('select[name="dateFormat"]');
+      if (dateFormatSelect) {
+        dateFormat = dateFormatSelect.value;
+      }
       
-      // Update step indicators
-      stepIndicators[1].classList.remove('active');
-      stepIndicators[1].classList.add('completed');
-      stepIndicators[2].classList.add('active');
+      // Get amount format
+      const amountFormatRadios = document.querySelectorAll('input[name="amountFormat"]');
+      for (const radio of amountFormatRadios) {
+        if (radio.checked) {
+          amountFormat = radio.id === 'negativeExpense' ? 'negative_expense' : 'separate_columns';
+          break;
+        }
+      }
+      
+      // Show loading state
+      step2Next.disabled = true;
+      step2Next.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+      
+      // Send mapping to server
+      fetch('/import/map', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          file_path: currentFilePath,
+          mapping: columnMapping,
+          date_format: dateFormat,
+          amount_format: amountFormat
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert('Error: ' + data.error);
+          step2Next.disabled = false;
+          step2Next.textContent = 'Next: Preview Data';
+        } else {
+          // Prepare preview UI
+          preparePreviewUI(data.preview);
+          
+          // Navigate to step 3
+          step2.classList.add('d-none');
+          step3.classList.remove('d-none');
+          
+          // Update step indicators
+          stepIndicators[1].classList.remove('active');
+          stepIndicators[1].classList.add('completed');
+          stepIndicators[2].classList.add('active');
+          
+          // Reset button
+          step2Next.disabled = false;
+          step2Next.textContent = 'Next: Preview Data';
+        }
+      })
+      .catch(error => {
+        console.error('Mapping error:', error);
+        alert('An error occurred while processing the data');
+        step2Next.disabled = false;
+        step2Next.textContent = 'Next: Preview Data';
+      });
     });
+    
+    // Prepare preview UI
+    function preparePreviewUI(preview) {
+      // Update transaction count and date range
+      const transactionInfo = document.querySelector('#step3 p:first-of-type');
+      if (transactionInfo && preview.stats) {
+        const dateRange = preview.date_range || {};
+        const start = dateRange.start || 'unknown date';
+        const end = dateRange.end || 'unknown date';
+        transactionInfo.innerHTML = `Review your data before importing. We've detected <strong>${preview.stats.total_transactions} transactions</strong> from <strong>${start}</strong> to <strong>${end}</strong>.`;
+      }
+      
+      // Update issues
+      const issuesContainer = document.querySelector('#step3 .alert-warning');
+      if (issuesContainer) {
+        if (preview.issues && preview.issues.length > 0) {
+          issuesContainer.classList.remove('d-none');
+          const issuesList = issuesContainer.querySelector('ul');
+          issuesList.innerHTML = '';
+          
+          preview.issues.forEach(issue => {
+            const li = document.createElement('li');
+            li.className = 'mb-0 small';
+            li.textContent = issue.message;
+            issuesList.appendChild(li);
+          });
+          
+          // Update issue count
+          const issueCount = issuesContainer.querySelector('p strong');
+          if (issueCount) {
+            issueCount.textContent = `${preview.issues.length} potential issues detected`;
+          }
+        } else {
+          issuesContainer.classList.add('d-none');
+        }
+      }
+      
+      // Update preview table
+      const previewTable = document.querySelector('#step3 .preview-table tbody');
+      if (previewTable && preview.sample_data) {
+        previewTable.innerHTML = '';
+        
+        preview.sample_data.forEach(transaction => {
+          const row = document.createElement('tr');
+          
+          // Add warning class if there are issues with this transaction
+          let hasIssue = false;
+          if (preview.issues) {
+            for (const issue of preview.issues) {
+              if (issue.rows && issue.rows.includes(preview.sample_data.indexOf(transaction))) {
+                hasIssue = true;
+                break;
+              }
+            }
+          }
+          
+          if (hasIssue) {
+            row.className = 'table-warning';
+          }
+          
+          // Date
+          const dateCell = document.createElement('td');
+          dateCell.textContent = transaction.date || '';
+          if (transaction.date === undefined || transaction.date === null) {
+            dateCell.innerHTML = '<span class="text-danger">Invalid Date</span>';
+          }
+          row.appendChild(dateCell);
+          
+          // Description
+          const descCell = document.createElement('td');
+          descCell.textContent = transaction.description || '';
+          row.appendChild(descCell);
+          
+          // Amount
+          const amountCell = document.createElement('td');
+          if (transaction.amount !== undefined && transaction.amount !== null) {
+            const amount = parseFloat(transaction.amount);
+            amountCell.className = amount < 0 ? 'text-danger' : 'text-success';
+            amountCell.textContent = amount < 0 ? `-$${Math.abs(amount).toFixed(2)}` : `$${amount.toFixed(2)}`;
+          }
+          row.appendChild(amountCell);
+          
+          // Category
+          const catCell = document.createElement('td');
+          if (transaction.category) {
+            catCell.textContent = transaction.category;
+          } else {
+            catCell.innerHTML = '<span class="text-danger">Missing</span>';
+          }
+          row.appendChild(catCell);
+          
+          // Status
+          const statusCell = document.createElement('td');
+          if (hasIssue) {
+            statusCell.innerHTML = '<span class="badge bg-warning text-dark">Warning</span>';
+          } else {
+            statusCell.innerHTML = '<span class="badge bg-success">Valid</span>';
+          }
+          row.appendChild(statusCell);
+          
+          // Add row to table
+          previewTable.appendChild(row);
+        });
+      }
+    }
     
     step3Back.addEventListener('click', function() {
       step3.classList.add('d-none');
@@ -656,14 +982,123 @@
     });
     
     step3Next.addEventListener('click', function() {
-      step3.classList.add('d-none');
-      step4.classList.remove('d-none');
+      // Get options
+      const skipDuplicates = document.getElementById('skipDuplicates').checked;
+      const autoCategorize = document.getElementById('autoCategorize').checked;
+      const fixIssues = document.getElementById('fixIssues').checked;
       
-      // Update step indicators
-      stepIndicators[2].classList.remove('active');
-      stepIndicators[2].classList.add('completed');
-      stepIndicators[3].classList.add('active');
+      // Show loading state
+      step3Next.disabled = true;
+      step3Next.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Importing...';
+      
+      // Send import request to server
+      fetch('/import/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          file_path: currentFilePath,
+          skip_duplicates: skipDuplicates,
+          auto_categorize: autoCategorize,
+          fix_issues: fixIssues
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert('Error: ' + data.error);
+          step3Next.disabled = false;
+          step3Next.textContent = 'Import Data';
+        } else {
+          // Update import summary
+          updateImportSummary(data.summary);
+          
+          // Navigate to step 4
+          step3.classList.add('d-none');
+          step4.classList.remove('d-none');
+          
+          // Update step indicators
+          stepIndicators[2].classList.remove('active');
+          stepIndicators[2].classList.add('completed');
+          stepIndicators[3].classList.add('active');
+          
+          // Reset button
+          step3Next.disabled = false;
+          step3Next.textContent = 'Import Data';
+        }
+      })
+      .catch(error => {
+        console.error('Import error:', error);
+        alert('An error occurred while importing the data');
+        step3Next.disabled = false;
+        step3Next.textContent = 'Import Data';
+      });
+    });
+    
+    // Update import summary
+    function updateImportSummary(summary) {
+      const summaryCard = document.querySelector('#step4 .card-body .card');
+      if (summaryCard) {
+        // Update transaction count
+        const totalTransactions = summaryCard.querySelector('.d-flex:nth-child(1) strong');
+        if (totalTransactions) {
+          totalTransactions.textContent = summary.total_transactions || 0;
+        }
+        
+        // Update date range
+        const dateRange = summaryCard.querySelector('.d-flex:nth-child(2) strong');
+        if (dateRange && summary.date_range) {
+          const start = summary.date_range.start || 'unknown';
+          const end = summary.date_range.end || 'unknown';
+          dateRange.textContent = `${start} - ${end}`;
+        }
+        
+        // Update income
+        const income = summaryCard.querySelector('.d-flex:nth-child(3) strong');
+        if (income) {
+          income.textContent = `$${summary.total_income?.toFixed(2) || '0.00'}`;
+        }
+        
+        // Update expenses
+        const expenses = summaryCard.querySelector('.d-flex:nth-child(4) strong');
+        if (expenses) {
+          expenses.textContent = `$${Math.abs(summary.total_expenses || 0).toFixed(2)}`;
+        }
+      }
+      
+      // Update success message
+      const successMessage = document.querySelector('#step4 p');
+      if (successMessage) {
+        successMessage.innerHTML = `We've successfully imported <strong>${summary.total_transactions || 0} transactions</strong> to your account.`;
+      }
+    }
+    
+    // Add event listeners for date format and amount format
+    const dateFormatSelect = document.querySelector('select[name="dateFormat"]');
+    if (dateFormatSelect) {
+      dateFormatSelect.addEventListener('change', function() {
+        dateFormat = this.value;
+      });
+    }
+    
+    const amountFormatRadios = document.querySelectorAll('input[name="amountFormat"]');
+    amountFormatRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        amountFormat = this.id === 'negativeExpense' ? 'negative_expense' : 'separate_columns';
+      });
     });
   });
 </script>
+
+<style>
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+</style>
 {% endblock %}
